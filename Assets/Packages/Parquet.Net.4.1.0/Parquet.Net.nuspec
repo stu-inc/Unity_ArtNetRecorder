@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Parquet.Net</id>
+    <version>4.1.0</version>
+    <authors>Ivan Gavryliuk (@aloneguid)</authors>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <icon>icon.png</icon>
+    <projectUrl>https://github.com/aloneguid/parquet-dotnet</projectUrl>
+    <description>Pure managed .NET library to read and write Apache Parquet files, targeting .NET Standand 2.0 and up.
+
+            Linux, Windows and Mac are first class citizens, but also works everywhere .NET is running (Android, iOS, IOT). Has zero dependencies on third-party libraries or any native code. Provides both low-level access to Apache Parquet files, and high-level utilities for more traditional and humanly understandable row-based access. Includes automatic serializer/deserializer from C# classes into parquet files that works by generating MSIL (bytecode) on the fly and is therefore super fast.</description>
+    <releaseNotes>see full release notes at https://github.com/aloneguid/parquet-dotnet/releases</releaseNotes>
+    <tags>apache parquet dotnet core net c# f# windows linux macos ios android xboxone xbox</tags>
+    <repository type="GitHub" url="https://github.com/aloneguid/parquet-dotnet" commit="67173d7534240f65fb4ced0372d8ef6bc4459a2b" />
+    <dependencies>
+      <group targetFramework=".NETCoreApp3.1">
+        <dependency id="IronCompress" version="1.1.5" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework="net6.0">
+        <dependency id="IronCompress" version="1.1.5" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETStandard2.1">
+        <dependency id="IronCompress" version="1.1.5" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>

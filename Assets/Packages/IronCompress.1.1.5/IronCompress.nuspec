@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>IronCompress</id>
+    <version>1.1.5</version>
+    <authors>Ivan Gavryliuk</authors>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <license type="expression">Apache-2.0</license>
+    <licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
+    <icon>icon.png</icon>
+    <projectUrl>https://www.aloneguid.uk/projects/ironcompress/</projectUrl>
+    <description>Buffer compresison library supporting all the major compression algorithms (gzip, brotli, snappy, zstd etc.)</description>
+    <tags>snappy zstd gzip brotli lzo lz4</tags>
+    <repository type="git" url="https://github.com/aloneguid/ironcompress" commit="40c4859d3a94530c53961583e5eda51e0e473a15" />
+    <dependencies>
+      <group targetFramework=".NETCoreApp3.1" />
+      <group targetFramework="net6.0" />
+      <group targetFramework=".NETStandard2.1" />
+    </dependencies>
+  </metadata>
+</package>

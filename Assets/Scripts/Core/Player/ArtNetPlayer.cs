@@ -11,12 +11,12 @@ public class ArtNetPlayer : MonoBehaviour
 {
 
     [SerializeField] private ArtNetResendUI artNetResendUI;
-    
+
     private DmxRecordData dmxRecordData;
-    
+
     private byte[][] dmx;
     private float[] dmxRaw;
-    
+
     UdpClient udpClient = new UdpClient();
 
     public async UniTask<DmxRecordData> Load(string path)
@@ -24,13 +24,21 @@ public class ArtNetPlayer : MonoBehaviour
         dmxRecordData = await ReadFile(path);
         return dmxRecordData;
     }
-    
+
     private static async UniTask<DmxRecordData> ReadFile(string path)
     {
+        var extension = Path.GetExtension(path);
+        if (extension == ".dmx")
+        {
+            return await UniTask.Run(() => DmxRecordData.ReadFromFilePath(path));
+        }
+        if (extension == ".parquet")
+        {
+            return await UniTask.Run(async () => await DmxRecordData.ReadFromParquetFile(path));
+        }
 
-        var result = await UniTask.Run(() => DmxRecordData.ReadFromFilePath(path));
-
-        return result;
+        Debug.LogError($"Unknown file extension: {extension}");
+        return null;
     }
 
     public double GetDuration()
@@ -41,11 +49,11 @@ public class ArtNetPlayer : MonoBehaviour
     public void Initialize(int maxUniverseNum)
     {
         dmx = new byte[maxUniverseNum][];
-        for(var i = 0; i < maxUniverseNum; i++)
+        for (var i = 0; i < maxUniverseNum; i++)
         {
             dmx[i] = new byte[512];
         }
-        
+
         dmxRaw = new float[maxUniverseNum * 512];
     }
 
@@ -53,25 +61,26 @@ public class ArtNetPlayer : MonoBehaviour
     {
         foreach (var packet in dmxRecordData.Data)
         {
-                
+
             if (packet.time >= header)
             {
 
                 foreach (var universeData in packet.data)
                 {
-                    
-                    Buffer.BlockCopy(universeData.data, 0, dmx[universeData.universe],0, universeData.data.Length);
+
+                    Buffer.BlockCopy(universeData.data, 0, dmx[universeData.universe], 0, universeData.data.Length);
 
                     if (artNetResendUI.IsEnabled)
                     {
                         var artNetPacket = new ArtNetDmxPacket
                         {
-                            Universe = (short) universeData.universe, DmxData = dmx[universeData.universe]
+                            Universe = (short)universeData.universe,
+                            DmxData = dmx[universeData.universe]
                         };
 
                         udpClient.Send(artNetPacket.ToArray(), artNetPacket.Length, artNetResendUI.IPAddress.ToString(), artNetResendUI.Port);
                     }
-                    
+
                     // universe
                     for (var universe = 0; universe < dmx.Length; universe++)
                     {
@@ -80,15 +89,15 @@ public class ArtNetPlayer : MonoBehaviour
                         {
                             dmxRaw[universe * dmx[universe].Length + channel] = dmx[universe][channel];
                         }
-                    
+
                     }
-                    
+
                 }
-                    
+
                 return dmxRaw;
             }
         }
-        
+
         return dmxRaw;
     }
 }

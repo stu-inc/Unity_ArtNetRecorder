@@ -13,6 +13,9 @@ using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
+using Parquet.Data;
+using Parquet;
+
 namespace ProjectBlue.ArtNetRecorder
 {
 
@@ -22,7 +25,7 @@ namespace ProjectBlue.ArtNetRecorder
         public double Time;
         public byte[][] Data;
     }
-    
+
     public sealed class ArtNetRecorder : RecorderBase
     {
 
@@ -30,23 +33,25 @@ namespace ProjectBlue.ArtNetRecorder
 
         private static byte[][] dmx = new byte[Const.MaxUniverse][];
         private static byte[] dmxRaw = new byte[Const.MaxUniverse * 512];
-        
+
         private ConcurrentQueue<DmxRecordingPacket> dmxBuff = new ConcurrentQueue<DmxRecordingPacket>();
-        
+
         private ConcurrentQueue<(int, int, int)> indicatorBuff = new ConcurrentQueue<(int, int, int)>();
 
         private const double FixedDeltaTime = 1.0d / 60.0d;
-        
+
         private Stopwatch recordingStopWatch = new Stopwatch();
         private uint recordingSequenceNumber = 0;
 
         private SynchronizationContext synchronizationContext;
 
+        private CompressionMethod compressionMethod = CompressionMethod.Brotli;
+
         private void Awake()
         {
             synchronizationContext = SynchronizationContext.Current;
         }
-        
+
         private void OnEnable()
         {
             dmx = new byte[Const.MaxUniverse][];
@@ -75,82 +80,97 @@ namespace ProjectBlue.ArtNetRecorder
         private void OnDisable()
         {
             if (!loopFlg) return;
-            
+
             loopFlg = false;
             IsRecording = false;
         }
-        
+
         public override async void RecordStart()
         {
             if (dmxBuff.Count == 0)
             {
                 dmxBuff = new ConcurrentQueue<DmxRecordingPacket>();
                 indicatorBuff = new ConcurrentQueue<(int, int, int)>();
-                
+
                 IsRecording = true;
 
                 recordingStopWatch.Start();
 
-                var path = CreateRecordingFile();
-                
-                
                 var total = 0L;
                 var bytesLen = 0L;
-                
-                await Task.Run(() =>
+                var path = Path.Combine(Application.streamingAssetsPath, $"Dmx_{DateTime.Now.ToString("yyyyMMddHHmmss")}_{compressionMethod}.parquet");
+
+                await Task.Run(async () =>
                 {
-                    
-                    using (var file = new FileStream(path, FileMode.Create, FileAccess.ReadWrite))
+                    List<uint> sequencesList = new List<uint>();
+                    List<double> millisecondsList = new List<double>();
+                    List<uint> numUniversesList = new List<uint>();
+                    List<List<byte[]>> dataList = new List<List<byte[]>>();
+
+
+                    while (IsRecording || dmxBuff.Count > 0)
                     {
-                        while (IsRecording || dmxBuff.Count > 0)
+                        if (dmxBuff.TryDequeue(out var dmxRecordingPacket))
                         {
-                            if (dmxBuff.TryDequeue(out var dmxRecordingPacket))
+                            // ここで時刻を取り出す
+                            sequencesList.Add(dmxRecordingPacket.Sequence);
+                            millisecondsList.Add(dmxRecordingPacket.Time);
+
+                            uint numUniverses = 0;
+                            var dataSegment = new List<byte[]>();
+
+                            var totalValueAggregation = 0;    // インジケータ用
+
+                            // all universes
+                            for (short i = 0; i < dmxRecordingPacket.Data.Length; i++)
                             {
-                                
-                                // ここで時刻を取り出す
-                                var sequence = ByteConvertUtility.GetBytes(dmxRecordingPacket.Sequence);
-                                var milliseconds = ByteConvertUtility.GetBytes(dmxRecordingPacket.Time);
-
-                                uint numUniverses = 0;
-                                var dataSegment = new List<byte[]>();
-
-                                var totalValueAggregation = 0;    // インジケータ用
-                                
-                                // all universes
-                                for (short i = 0; i < dmxRecordingPacket.Data.Length; i++)
+                                if (dmxRecordingPacket.Data[i] != null)
                                 {
-                                    
-                                    if (dmxRecordingPacket.Data[i] != null)
-                                    {
-                                        var myUniverse = ByteConvertUtility.GetBytes((uint)i);
-                                        numUniverses++;
-                                        dataSegment.Add(ByteConvertUtility.Join(myUniverse, dmxRecordingPacket.Data[i]));
+                                    var myUniverse = ByteConvertUtility.GetBytes((uint)i);
+                                    numUniverses++;
+                                    dataSegment.Add(ByteConvertUtility.Join(myUniverse, dmxRecordingPacket.Data[i]));
 
-                                        totalValueAggregation += dmxRecordingPacket.Data[i].Select(v => (int)v).Sum();
-                                    }
+                                    totalValueAggregation += dmxRecordingPacket.Data[i].Select(v => (int)v).Sum();
                                 }
-                                
-                                // TODO: 多分BinaryWriter継承したクラス作ってRecデータ構造定義してあげたほうがよさそう
-                                var bytes = ByteConvertUtility.Join(sequence, milliseconds, ByteConvertUtility.GetBytes(numUniverses), dataSegment.SelectMany(a => a).ToArray());
-                                file.Write(bytes, 0, bytes.Length);
-                                bytesLen += bytes.Length;
-                                
-                                indicatorBuff.Enqueue(((int)dmxRecordingPacket.Sequence, (int)numUniverses, totalValueAggregation));
-                                
-                                total++;
+                            }
+                            dataList.Add(dataSegment);
+                            numUniversesList.Add(numUniverses);
+
+                            indicatorBuff.Enqueue(((int)dmxRecordingPacket.Sequence, (int)numUniverses, totalValueAggregation));
+
+                            total++;
+                        }
+                    }
+                    var sequenceColumn = new DataColumn(new DataField<uint>("sequence"), sequencesList.ToArray());
+                    var millisecondsColumn = new DataColumn(new DataField<double>("milliseconds"), millisecondsList.ToArray());
+                    var numUniverseColumn = new DataColumn(new DataField<uint>("numUniverse"), numUniversesList.ToArray());
+                    var reps = dataList.SelectMany((x, i) => x.Select((x, j) =>
+                    {
+                        return System.Math.Min(j, 1) + System.Math.Min(i, 1);
+                    })).ToArray();
+                    var dataColumn = new DataColumn(new DataField("data", DataType.Byte, isArray: true), dataList.SelectMany(x => x).SelectMany(x => x).ToArray(), reps);
+                    var schema = new Schema(sequenceColumn.Field, millisecondsColumn.Field, numUniverseColumn.Field, dataColumn.Field);
+
+                    using (Stream fileStream = System.IO.File.OpenWrite(path))
+                    {
+                        using (ParquetWriter parquetWriter = await ParquetWriter.CreateAsync(schema, fileStream))
+                        {
+                            parquetWriter.CompressionMethod = compressionMethod;
+                            using (ParquetRowGroupWriter rowGroupWriter = parquetWriter.CreateRowGroup())
+                            {
+                                await rowGroupWriter.WriteColumnAsync(sequenceColumn);
+                                await rowGroupWriter.WriteColumnAsync(millisecondsColumn);
+                                await rowGroupWriter.WriteColumnAsync(numUniverseColumn);
+                                await rowGroupWriter.WriteColumnAsync(dataColumn);
                             }
                         }
-                        
-                        
                     }
-                    
-                    
+
                 });
-                
-                
+
                 if (total > 0)
                 {
-                    OnSaved?.Invoke(new SaveResult{DataPath = path, PacketNum = total, Size = bytesLen});
+                    OnSaved?.Invoke(new SaveResult { DataPath = path, PacketNum = total, Size = bytesLen });
                 }
                 else
                 {
@@ -168,9 +188,9 @@ namespace ProjectBlue.ArtNetRecorder
         {
             var fileName = "Dmx_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".dmx";
             Directory.CreateDirectory(Application.streamingAssetsPath);
-            return  Path.Combine(Application.streamingAssetsPath, fileName);
+            return Path.Combine(Application.streamingAssetsPath, fileName);
         }
-        
+
         public override void RecordEnd()
         {
             IsRecording = false;
@@ -178,7 +198,7 @@ namespace ProjectBlue.ArtNetRecorder
             recordingStopWatch.Stop();
             recordingStopWatch.Reset();
         }
-        
+
         // cannot use async keyword with unsafe context
         private unsafe void ReceiveDmxTaskRun(CancellationToken cancellationToken = default)
         {
@@ -228,7 +248,8 @@ namespace ProjectBlue.ArtNetRecorder
                                 dmxBuff.Enqueue(new DmxRecordingPacket
                                 {
                                     Sequence = recordingSequenceNumber,
-                                    Time = recordingStopWatch.ElapsedMilliseconds, Data = buff
+                                    Time = recordingStopWatch.ElapsedMilliseconds,
+                                    Data = buff
                                 });
                                 recordingSequenceNumber++;
                             }
@@ -264,14 +285,14 @@ namespace ProjectBlue.ArtNetRecorder
                     switch (e)
                     {
                         case AggregateException _:
-                        {
-                            if (e.InnerException is TaskCanceledException)
                             {
-                                Debug.Log("ArtNet Receive Task canceled");
-                            }
+                                if (e.InnerException is TaskCanceledException)
+                                {
+                                    Debug.Log("ArtNet Receive Task canceled");
+                                }
 
-                            break;
-                        }
+                                break;
+                            }
                         case TaskCanceledException _:
                             Debug.Log("ArtNet Receive Task canceled");
                             break;
@@ -282,12 +303,12 @@ namespace ProjectBlue.ArtNetRecorder
                             break;
                     }
 
-                    
+
                     Debug.Log("ArtNet Server finished");
                 }
 
             }, cancellationToken);
-            
+
             // awaitできないので仕方なくContinueWithでエラーハンドリングする
             task.ContinueWith(continuationAction =>
             {
@@ -303,7 +324,7 @@ namespace ProjectBlue.ArtNetRecorder
                     }
                 }
             }, cancellationToken);
-            
+
         }
     }
 }

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<coreProperties xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.openxmlformats.org/package/2006/metadata/core-properties">
+  <dc:creator>Ivan Gavryliuk (@aloneguid)</dc:creator>
+  <dc:description>Pure managed .NET library to read and write Apache Parquet files, targeting .NET Standand 2.0 and up.
+
+            Linux, Windows and Mac are first class citizens, but also works everywhere .NET is running (Android, iOS, IOT). Has zero dependencies on third-party libraries or any native code. Provides both low-level access to Apache Parquet files, and high-level utilities for more traditional and humanly understandable row-based access. Includes automatic serializer/deserializer from C# classes into parquet files that works by generating MSIL (bytecode) on the fly and is therefore super fast.</dc:description>
+  <dc:identifier>Parquet.Net</dc:identifier>
+  <version>4.1.0</version>
+  <keywords>apache parquet dotnet core net c# f# windows linux macos ios android xboxone xbox</keywords>
+  <lastModifiedBy>NuGet.Build.Tasks.Pack, Version=6.3.1.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35;</lastModifiedBy>
+</coreProperties>
