@@ -8,7 +8,7 @@ public enum PlayState
     Playing, Pausing
 }
 
-public class ArtNetPlayerApplication : ApplicationBase
+public class ArtNetPlayerApplication : ApplicationBase<PlayerModel, PlayerPresenter>
 {
 
     [SerializeField] private DataVisualizer visualizer;
@@ -34,10 +34,12 @@ public class ArtNetPlayerApplication : ApplicationBase
     
     public override void OnClose()
     {
+        base.OnClose();
+        
         Pause();
     }
 
-    public override void OnOpen()
+    public override void OnOpen(ProjectDataManager projectDataManager)
     {
         // throw new NotImplementedException();
     }

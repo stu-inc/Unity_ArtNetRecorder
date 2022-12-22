@@ -4,28 +4,38 @@ using UniRx;
 
 public class ApplicationManager : MonoBehaviour
 {
-    [SerializeField] private Tab applicationTab;
+    [SerializeField] private Tab _applicationTab;
 
-    [SerializeField] private List<ApplicationBase> applications;
-    
+    [SerializeField] private List<App> _applications;
+
+    private ProjectDataManager _projectDataManager = new();
+
     private void Start()
     {
-        applicationTab.OnSelected.Subscribe(ApplicationChanged).AddTo(this);
+        _applicationTab.OnSelected.Subscribe(ApplicationChanged).AddTo(this);
     }
     
     private void ApplicationChanged(int index)
     {
         
-        applications.ForEach(app =>
+        _applications.ForEach(app =>
         {
             app.OnClose();
         });
 
-        if (index < applications.Count)
+        if (index < _applications.Count)
         {
-            applications[index]?.OnOpen();
+            _applications[index]?.OnOpen(_projectDataManager);
         }
 
+    }
+
+    public void OnDestroy()
+    {
+        _applications.ForEach(app =>
+        {
+            app.OnClose();
+        });
     }
 
 }

@@ -17,7 +17,7 @@ public class ArtNetPlayer : MonoBehaviour
     private byte[][] dmx;
     private float[] dmxRaw;
 
-    UdpClient udpClient = new UdpClient();
+    UdpClient udpClient = new();
 
     public async UniTask<DmxRecordData> Load(string path)
     {
@@ -77,8 +77,10 @@ public class ArtNetPlayer : MonoBehaviour
                             Universe = (short)universeData.universe,
                             DmxData = dmx[universeData.universe]
                         };
+                        
+                        var artNetPacketBytes = artNetPacket.ToArray();
 
-                        udpClient.Send(artNetPacket.ToArray(), artNetPacket.Length, artNetResendUI.IPAddress.ToString(), artNetResendUI.Port);
+                        udpClient.Send(artNetPacketBytes, artNetPacketBytes.Length, artNetResendUI.IPAddress.ToString(), artNetResendUI.Port);
                     }
 
                     // universe
