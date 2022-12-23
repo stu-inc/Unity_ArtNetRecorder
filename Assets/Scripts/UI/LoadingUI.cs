@@ -10,7 +10,7 @@ public class LoadingUI : MonoBehaviour
         canvasGroup.interactable = false;
     }
 
-    public void Display()
+    public void Show()
     {
         canvasGroup.alpha = 1;
         canvasGroup.blocksRaycasts = true;

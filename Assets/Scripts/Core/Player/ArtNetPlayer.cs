@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using Cysharp.Threading.Tasks;
+using UniRx;
 using UnityEngine;
 
 public class ArtNetPlayer
@@ -18,6 +19,9 @@ public class ArtNetPlayer
 
     private IPAddress _destinationIp;
     private int _destinationPort;
+    
+    private Subject<bool> _onLoadingStateChanged = new();
+    public IObservable<bool> OnLoadingStateChanged => _onLoadingStateChanged;
 
     public ArtNetPlayer(int maxUniverseNum)
     {
@@ -42,7 +46,9 @@ public class ArtNetPlayer
 
     public async UniTask<DmxRecordData> Load(string path)
     {
+        _onLoadingStateChanged.OnNext(true);
         dmxRecordData = await ReadFile(path);
+        _onLoadingStateChanged.OnNext(false);
         return dmxRecordData;
     }
 

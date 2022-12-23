@@ -21,6 +21,11 @@ public abstract class ApplicationBase<TModel, TPresenter> : App where TModel : M
     {
         OnDestroy();
     }
+
+    public override void OnOpen(ProjectDataManager projectDataManager)
+    {
+        _presenter?.Initialize();
+    }
     
     protected void OnDestroy()
     {

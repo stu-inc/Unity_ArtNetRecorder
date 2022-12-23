@@ -10,11 +10,16 @@ using UnityEngine;
 
 public abstract class Presenter<T> : MonoBehaviour, IDisposable where T : Model
 {
+    public void Initialize()
+    {
+        gameObject.SetActive(true);
+    }
+    
     public abstract IEnumerable<IDisposable> Bind(T model);
 
     public virtual void Dispose()
     {
-        
+        gameObject.SetActive(false);
     }
 }
 

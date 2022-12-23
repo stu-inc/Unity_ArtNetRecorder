@@ -5,7 +5,7 @@ public class ArtNetPlayerApplication : ApplicationBase<PlayerModel, PlayerPresen
 
     public override void OnOpen(ProjectDataManager projectDataManager)
     {
-        // throw new NotImplementedException();
+        base.OnOpen(projectDataManager);
 
         _model = new PlayerModel(projectDataManager);
         
@@ -54,6 +54,11 @@ public class ArtNetPlayerApplication : ApplicationBase<PlayerModel, PlayerPresen
         _presenter.OnEndOfTimeline.Subscribe(_ =>
         {
             model.StopPlaying();
+        }).AddTo(_disposables);
+
+        _presenter.OnLoadingStateChanged.Subscribe(isLoading =>
+        {
+            model.ChangeIsLoading(isLoading);
         }).AddTo(_disposables);
 
     }

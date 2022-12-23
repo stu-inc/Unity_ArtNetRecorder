@@ -9,23 +9,23 @@ public class PlayerModel : Model
 {
 
     private readonly ReactiveProperty<IPAddress> _ipAddress;
-    public IReadOnlyReactiveProperty<IPAddress> IpAddress => _ipAddress;
-
     private readonly ReactiveProperty<int> _port;
-    public IReadOnlyReactiveProperty<int> Port => _port;
     
     private readonly ReactiveProperty<bool> _isPlaying = new(false);
-    public IReadOnlyReactiveProperty<bool> IsPlaying => _isPlaying;
-
-
     private readonly ReactiveProperty<bool> _isSending = new(false);
-    public IReadOnlyReactiveProperty<bool> IsSending => _isSending;
-
+    
     private readonly ReactiveProperty<string> _dmxFilePath = new(null);
-    public IReadOnlyReactiveProperty<string> DmxFilePath => _dmxFilePath;
-
     private readonly ReactiveProperty<string> _soundFilePath = new(null);
+
+    private readonly ReactiveProperty<bool> _isLoading = new(false);
+
+    public IReadOnlyReactiveProperty<IPAddress> IpAddress => _ipAddress;
+    public IReadOnlyReactiveProperty<int> Port => _port;
+    public IReadOnlyReactiveProperty<bool> IsPlaying => _isPlaying;
+    public IReadOnlyReactiveProperty<bool> IsSending => _isSending;
+    public IReadOnlyReactiveProperty<string> DmxFilePath => _dmxFilePath;
     public IReadOnlyReactiveProperty<string> SoundFilePath => _soundFilePath;
+    public IReadOnlyReactiveProperty<bool> IsLoading => _isLoading;
 
     public PlayerModel(ProjectDataManager projectDataManager) : base(projectDataManager)
     {
@@ -71,5 +71,17 @@ public class PlayerModel : Model
     {
         _isPlaying.Value = false;
     }
-    
+
+    public void ChangeIsLoading(bool isLoading)
+    {
+        _isLoading.Value = isLoading;
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+
+        _dmxFilePath.Value = null;
+        _soundFilePath.Value = null;
+    }
 }

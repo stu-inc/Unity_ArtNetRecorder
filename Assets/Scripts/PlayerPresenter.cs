@@ -13,7 +13,7 @@ public class PlayerPresenter : Presenter<PlayerModel>
     [SerializeField] private PlayerUI playerUI;
     [SerializeField] private FileDialogUI dmxFileDialogUI;
     [SerializeField] private FileDialogUI audioDialogUI;
-    [SerializeField] private AudioPlayer audioPlayer;
+    
     [SerializeField] private LoadingUI loadingUI;
 
     [SerializeField] private ArtNetResendUI artNetResendUI;
@@ -23,8 +23,9 @@ public class PlayerPresenter : Presenter<PlayerModel>
     private double header;
     private double endTime;
 
-    private ArtNetPlayer _artNetPlayer = new(MaxUniverseNum);
-
+    private ArtNetPlayer _artNetPlayer;
+    private AudioPlayer _audioPlayer;
+    
     private Subject<Unit> _onEndOfTimeline = new();
     public IObservable<Unit> OnEndOfTimeline => _onEndOfTimeline;
 
@@ -35,11 +36,21 @@ public class PlayerPresenter : Presenter<PlayerModel>
     public IObservable<Unit> OnToggleIsSending => artNetResendUI.IsEnabled.Select(x => Unit.Default);
     public IObservable<IPAddress> OnIpAddressChanged => artNetResendUI.OnIpChanged;
     public IObservable<int> OnPortChanged => artNetResendUI.OnPortChanged;
+    public IObservable<bool> OnLoadingStateChanged => Observable.Merge(_artNetPlayer.OnLoadingStateChanged, _audioPlayer.OnLoadingStateChanged);
 
     public override IEnumerable<IDisposable> Bind(PlayerModel model)
     {
 
-        loadingUI.Hide();
+        _artNetPlayer = new ArtNetPlayer(MaxUniverseNum);
+        _audioPlayer = new AudioPlayer();
+        
+        yield return model.IsLoading.Subscribe(isLoading =>
+        {
+            if(isLoading)
+                loadingUI.Show();
+            else
+                loadingUI.Hide();
+        });
         
         yield return model.IsPlaying.Subscribe(isPlaying =>
         {
@@ -51,18 +62,26 @@ public class PlayerPresenter : Presenter<PlayerModel>
 
         yield return model.DmxFilePath.Subscribe(filePath =>
         {
+            dmxFileDialogUI.SetValueWithoutNotify(filePath);
+        });
+        
+        yield return model.DmxFilePath.Subscribe(filePath =>
+        {
             if (string.IsNullOrEmpty(filePath)) return;
-            
+            // TODO: 再生中の読み込みブロックはそもそもFileDialogUI側の入力不可で制限する
             if(!model.IsPlaying.Value)
                 Initialize(filePath);
         });
 
         yield return model.SoundFilePath.Subscribe(filePath =>
         {
-            if (!string.IsNullOrEmpty(filePath))
-            {
-                audioPlayer.LoadClipFromPath(filePath).Forget();
-            }
+            audioDialogUI.SetValueWithoutNotify(filePath);
+        });
+        
+        yield return model.SoundFilePath.Subscribe(filePath =>
+        {
+            if (string.IsNullOrEmpty(filePath)) return;
+            _audioPlayer.LoadClipFromPath(filePath).Forget();
         });
 
         yield return Observable.EveryUpdate().Where(_ => initialized && model.IsPlaying.Value).Subscribe(_ =>
@@ -105,7 +124,7 @@ public class PlayerPresenter : Presenter<PlayerModel>
         initialized = false;
         
         // read file
-        loadingUI.Display();
+        loadingUI.Show();
         
         var data = await _artNetPlayer.Load(path);
 
@@ -136,13 +155,13 @@ public class PlayerPresenter : Presenter<PlayerModel>
         
         playerUI.SetAsPauseVisual();
         
-        audioPlayer.Resume((float)header);
+        _audioPlayer?.Resume((float)header);
     }
 
     public void Pause()
     {
         playerUI.SetAsPlayVisual();
-        audioPlayer.Pause();
+        _audioPlayer?.Pause();
     }
 
     public override void Dispose()

@@ -1,8 +1,4 @@
-using System;
-using inc.stu.DmxRecorder;
 using UniRx;
-using ProjectBlue.ArtNetRecorder;
-using UnityEngine;
 
 public class DmxRecorderApplication : ApplicationBase<RecorderModel, RecorderPresenter>
 {
@@ -24,6 +20,8 @@ public class DmxRecorderApplication : ApplicationBase<RecorderModel, RecorderPre
 
     public override void OnOpen(ProjectDataManager projectDataManager)
     {
+        base.OnOpen(projectDataManager);
+        
         // CreateModel
         _model = new RecorderModel(projectDataManager);
         
@@ -32,8 +30,5 @@ public class DmxRecorderApplication : ApplicationBase<RecorderModel, RecorderPre
         SetupPresenter(_model);
         Logger.Log("Changed to ArtNet Recorder");
     }
-
-
     
-
 }

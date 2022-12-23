@@ -15,22 +15,24 @@ public class FileDialogUI : MonoBehaviour
 
     public IObservable<string> OnFileNameChanged => onFileNameChanged;
 
-    private Subject<string> onFileNameChanged = new Subject<string>();
+    private Subject<string> onFileNameChanged = new();
 
     private void Awake()
     {
 
-        inputField.OnValueChangedAsObservable().Subscribe(text =>
+        inputField.onEndEdit.AsObservable().Subscribe(text =>
         {
             onFileNameChanged.OnNext(text);
         }).AddTo(this);
 
-        browseButton.onClick.AddListener(Open);
+        browseButton.OnClickAsObservable().Subscribe(_ =>
+        {
+            Open();
+        }).AddTo(this);
     }
 
     private void Open()
     {
-
         var extensions = new[] {
             new ExtensionFilter("DMX Record Files", extensionFilter.Split(',') ),
         };
@@ -38,12 +40,13 @@ public class FileDialogUI : MonoBehaviour
         StandaloneFileBrowser.OpenFilePanelAsync("Open File", "", extensions, false, (string[] paths) =>
         {
             inputField.text = paths[0];
-
-            // オープン成功したら上流に通知する方が良さそう。
-            // リセットかける
             onFileNameChanged.OnNext(paths[0]);
         });
+    }
 
+    public void SetValueWithoutNotify(string value)
+    {
+        inputField.SetTextWithoutNotify(value);
     }
 
     private void OnDestroy()
