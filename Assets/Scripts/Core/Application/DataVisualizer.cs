@@ -14,18 +14,10 @@ public class DataVisualizer : MonoBehaviour, IDisposable
 
     private int maxUniverseNum;
 
-    public void Open()
-    {
-        rawImage.enabled = true;
-    }
-
-    public void Close()
-    {
-        rawImage.enabled = false;
-    }
-    
     public void Initialize(int maxUniverseNum = 64)
     {
+        Dispose();
+        
         this.maxUniverseNum = maxUniverseNum;
         
         kernelIndex = dmxTextureBufferCompute.FindKernel("CSMain");

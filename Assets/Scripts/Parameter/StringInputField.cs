@@ -9,7 +9,7 @@ namespace inc.stu.SyncArena
     {
         [SerializeField] private TMP_InputField _inputField;
 
-        public IObservable<string> OnValueChanged => _inputField.onValueChanged.AsObservable();
+        public IObservable<string> OnEndEdit => _inputField.onEndEdit.AsObservable();
 
         public string Value => _inputField.text;
         

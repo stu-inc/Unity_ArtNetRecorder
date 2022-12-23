@@ -4,8 +4,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using Cysharp.Threading.Tasks;
-using Mono.Cecil.Cil;
-using ProjectBlue;
 using UnityEngine;
 
 public class ArtNetPlayer
@@ -20,12 +18,25 @@ public class ArtNetPlayer
 
     private IPAddress _destinationIp;
     private int _destinationPort;
-    
-    private bool _isPlaying;
 
-    public void SetDestination(IPAddress ip, int port)
+    public ArtNetPlayer(int maxUniverseNum)
+    {
+        dmx = new byte[maxUniverseNum][];
+        for (var i = 0; i < maxUniverseNum; i++)
+        {
+            dmx[i] = new byte[512];
+        }
+
+        dmxRaw = new float[maxUniverseNum * 512];
+    }
+    
+    public void SetIp(IPAddress ip)
     {
         _destinationIp = ip;
+    }
+
+    public void SetPort(int port)
+    {
         _destinationPort = port;
     }
 
@@ -56,18 +67,7 @@ public class ArtNetPlayer
         return dmxRecordData.Data.Last().time;
     }
 
-    public void Initialize(int maxUniverseNum)
-    {
-        dmx = new byte[maxUniverseNum][];
-        for (var i = 0; i < maxUniverseNum; i++)
-        {
-            dmx[i] = new byte[512];
-        }
-
-        dmxRaw = new float[maxUniverseNum * 512];
-    }
-
-    public float[] ReadAndSend(double header)
+    public float[] ReadAndSend(double header, bool isSend)
     {
         foreach (var packet in dmxRecordData.Data)
         {
@@ -80,7 +80,7 @@ public class ArtNetPlayer
 
                     Buffer.BlockCopy(universeData.data, 0, dmx[universeData.universe], 0, universeData.data.Length);
 
-                    if (_isPlaying)
+                    if (isSend)
                     {
                         var artNetPacket = new ArtNetDmxPacket
                         {

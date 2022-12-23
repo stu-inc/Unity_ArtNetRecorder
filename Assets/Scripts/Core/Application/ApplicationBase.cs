@@ -25,12 +25,13 @@ public abstract class ApplicationBase<TModel, TPresenter> : App where TModel : M
     protected void OnDestroy()
     {
         _model?.Dispose();
-        _presenter?.Dispose();
         
         _disposables.ForEach(disposable =>
         {
             disposable.Dispose();
         });
+        
+        _presenter?.Dispose();
     }
 
 }

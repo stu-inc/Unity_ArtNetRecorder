@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,15 +16,25 @@ public class PlayToggleButton : MonoBehaviour
     
     public void SetAsPauseVisual()
     {
-        button.image.color = pauseColor;
-        pauseImage.gameObject.SetActive(true);
-        playImage.gameObject.SetActive(false);
+        if(button != null)
+            button.image.color = pauseColor;
+        
+        if(pauseImage != null)
+            pauseImage.gameObject.SetActive(true);
+        
+        if(playImage != null)
+            playImage.gameObject.SetActive(false);
     }
 
     public void SetAsPlayVisual()
     {
-        button.image.color = playColor;
-        pauseImage.gameObject.SetActive(false);
-        playImage.gameObject.SetActive(true);
+        if(button != null)
+           button.image.color = playColor;
+        
+        if(pauseImage != null)
+            pauseImage.gameObject.SetActive(false);
+        
+        if(playImage != null)
+            playImage.gameObject.SetActive(true);
     }
 }

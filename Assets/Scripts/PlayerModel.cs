@@ -17,6 +17,10 @@ public class PlayerModel : Model
     private readonly ReactiveProperty<bool> _isPlaying = new(false);
     public IReadOnlyReactiveProperty<bool> IsPlaying => _isPlaying;
 
+
+    private readonly ReactiveProperty<bool> _isSending = new(false);
+    public IReadOnlyReactiveProperty<bool> IsSending => _isSending;
+
     private readonly ReactiveProperty<string> _dmxFilePath = new(null);
     public IReadOnlyReactiveProperty<string> DmxFilePath => _dmxFilePath;
 
@@ -35,13 +39,7 @@ public class PlayerModel : Model
     {
         _ipAddress.Value = ip;
     }
-    
-    public void ChangeIp(string ipString)
-    {
-        var ip = IPAddress.Parse(ipString);
-        _ipAddress.Value = ip;
-    }
-    
+
     public void ChangePort(int port)
     {
         _port.Value = port;
@@ -51,10 +49,10 @@ public class PlayerModel : Model
     {
         _isPlaying.Value = !_isPlaying.Value;
     }
-    
-    public void SetIsPlaying(bool isPlaying)
+
+    public void ToggleIsSending()
     {
-        _isPlaying.Value = isPlaying;
+        _isSending.Value = !_isSending.Value;
     }
     
     public void SetDmxFilePath(string filePath)
@@ -67,6 +65,11 @@ public class PlayerModel : Model
     {
         _isPlaying.Value = false;
         _soundFilePath.Value = File.Exists(filePath) ? filePath : null;
+    }
+
+    public void StopPlaying()
+    {
+        _isPlaying.Value = false;
     }
     
 }
