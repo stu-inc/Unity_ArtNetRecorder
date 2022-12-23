@@ -4,6 +4,14 @@ using UniRx;
 
 public abstract class Model : IDisposable
 {
+
+    protected ProjectDataManager _projectDataManager;
+
+    public Model(ProjectDataManager projectDataManager)
+    {
+        _projectDataManager = projectDataManager;
+    }
+    
     public virtual void Dispose()
     {
         
@@ -13,15 +21,15 @@ public abstract class Model : IDisposable
 public class RecorderModel : Model
 {
 
-    private ProjectDataManager _projectDataManager;
-
     private ReactiveProperty<int> _receivePort;
     public IReadOnlyReactiveProperty<int> ReceivePort => _receivePort;
 
     private ReactiveProperty<bool> _isRecording = new(false);
     public IReadOnlyReactiveProperty<bool> IsRecording => _isRecording;
 
-    public RecorderModel(ProjectDataManager projectDataManager)
+    
+
+    public RecorderModel(ProjectDataManager projectDataManager) : base(projectDataManager)
     {
         _receivePort = projectDataManager.ArtNetReceivePort;
     }
@@ -35,5 +43,7 @@ public class RecorderModel : Model
     {
         _isRecording.Value = isRecording;
     }
+
+    
     
 }

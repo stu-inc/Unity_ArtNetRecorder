@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using inc.stu.DmxRecorder;
+using inc.stu.SyncArena;
 using ProjectBlue.ArtNetRecorder;
 using UniRx;
 using UnityEngine;
@@ -21,10 +22,12 @@ public class RecorderPresenter : Presenter<RecorderModel>
 {
     
     [SerializeField] private RecorderUI _recorderUI;
+    [SerializeField] private IntInputField _portInputField;
     
     private ArtNetRecorder _artNetRecorder;
 
     public IObservable<Unit> RecordButtonToggled => _recorderUI.RecordButton.Button.OnClickAsObservable();
+    public IObservable<int> OnPortValueChanged => _portInputField.OnValueChanged;
     
     public override IEnumerable<IDisposable> Bind(RecorderModel model)
     {
@@ -51,37 +54,42 @@ public class RecorderPresenter : Presenter<RecorderModel>
             }
             
         });
-        
 
-        SetupArtNetRecorder();
-        
-    }
-
-    private void SetupArtNetRecorder()
-    {
-        _artNetRecorder = new ArtNetRecorder(6454);
-        
-        _artNetRecorder.OnIndicatorUpdate = tuple =>
+        yield return model.ReceivePort.Subscribe(port =>
         {
-            _recorderUI.IndicatorUI.SetScale(tuple.Item2);
-            _recorderUI.IndicatorUI.Set(tuple.Item1, tuple.Item3);
-        };
+            _portInputField.SetValueWithoutNotify(port);
+        });
 
-        _artNetRecorder.OnUpdateTime = (ms) =>
+        yield return model.ReceivePort.Subscribe(port =>
         {
-            var t = TimeSpan.FromMilliseconds(ms);
-            _recorderUI.TimeCodeText.text = $"{t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2};{t.Milliseconds:D3}";
-        };
-
-        _artNetRecorder.OnSaved = (result) =>
-        {
-            // Record中にQuitするとTextがDestroy済なのにアクセスしてしまうのを防止
-            if (!Application.isPlaying) return;
+            _artNetRecorder?.Dispose();
+            _artNetRecorder = null;
             
-            var size = BytesCalculator.GetBytesReadable(result.Size);
+            _artNetRecorder = new ArtNetRecorder(port);
+        
+            _artNetRecorder.OnIndicatorUpdate = tuple =>
+            {
+                _recorderUI.IndicatorUI.SetScale(tuple.Item2);
+                _recorderUI.IndicatorUI.Set(tuple.Item1, tuple.Item3);
+            };
 
-            Logger.Log($"Saved - Packets: {result.PacketNum}, DataSize: {size} : {result.DataPath}");
-        };
+            _artNetRecorder.OnUpdateTime = (ms) =>
+            {
+                var t = TimeSpan.FromMilliseconds(ms);
+                _recorderUI.TimeCodeText.text = $"{t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2};{t.Milliseconds:D3}";
+            };
+
+            _artNetRecorder.OnSaved = (result) =>
+            {
+                // Record中にQuitするとTextがDestroy済なのにアクセスしてしまうのを防止
+                if (!Application.isPlaying) return;
+            
+                var size = BytesCalculator.GetBytesReadable(result.Size);
+
+                Logger.Log($"Saved - Packets: {result.PacketNum}, DataSize: {size} : {result.DataPath}");
+            };
+        });
+
     }
 
     public override void Dispose()

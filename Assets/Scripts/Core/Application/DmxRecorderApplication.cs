@@ -14,7 +14,12 @@ public class DmxRecorderApplication : ApplicationBase<RecorderModel, RecorderPre
         {
             model.SetRecording(!model.IsRecording.Value);
         }).AddTo(_disposables);
-        
+
+        _presenter.OnPortValueChanged.Subscribe(port =>
+        {
+            model.ChangePort(port);
+        }).AddTo(_disposables);
+
     }
 
     public override void OnOpen(ProjectDataManager projectDataManager)

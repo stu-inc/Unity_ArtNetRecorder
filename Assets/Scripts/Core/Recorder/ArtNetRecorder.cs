@@ -286,9 +286,6 @@ namespace ProjectBlue.ArtNetRecorder
                             {
                                 Debug.Log("ArtNet Receive Task canceled");
                             }
-
-
-
                             break;
                         }
                         case TaskCanceledException _:
@@ -316,8 +313,8 @@ namespace ProjectBlue.ArtNetRecorder
                     {
                         synchronizationContext.Post(__ =>
                         {
-                            Logger.Error("ポート6454が他のアプリケーションによって専有されています");
-                            DialogManager.OpenError("ポート6454が他のアプリケーションによって\n専有されています").Forget();
+                            Logger.Error($"ポート{Port}が他のアプリケーションによって専有されています");
+                            DialogManager.OpenError($"ポート{Port}が他のアプリケーションによって\n専有されています").Forget();
                         }, null);
                     }
                 }
