@@ -11,14 +11,16 @@ public class PlayerPresenter : Presenter<PlayerModel>
     [SerializeField] private FileDialogUI dmxFileDialogUI;
     [SerializeField] private FileDialogUI audioDialogUI;
     [SerializeField] private AudioPlayer audioPlayer;
-    [SerializeField] private ArtNetPlayer artNetPlayer;
     [SerializeField] private LoadingUI loadingUI;
 
+    [SerializeField] private ArtNetResendUI artNetResendUI;
     
     private bool initialized;
     
     private double header;
     private double endTime;
+
+    private ArtNetPlayer _artNetPlayer = new();
     
     public IObservable<Unit> OnPlayButtonPressed => playerUI.OnPlayButtonPressedAsObservable;
     public IObservable<string> OnDmxFileNameChanged => dmxFileDialogUI.OnFileNameChanged;
@@ -62,14 +64,20 @@ public class PlayerPresenter : Presenter<PlayerModel>
         
             header += Time.deltaTime * 1000;    // millisec
 
-            visualizer.Exec(artNetPlayer.ReadAndSend(header));
+            visualizer.Exec(_artNetPlayer.ReadAndSend(header));
 
             playerUI.SetHeader(header);
         });
 
+
         yield return model.IpAddress.Subscribe(address =>
         {
-            
+            artNetResendUI.SetIpWithoutNotify(address);
+        });
+
+        yield return model.Port.Subscribe(port =>
+        {
+            artNetResendUI.SetPortWithoutNotify(port);
         });
 
     }
@@ -82,7 +90,7 @@ public class PlayerPresenter : Presenter<PlayerModel>
         // read file
         loadingUI.Display();
         
-        var data = await artNetPlayer.Load(path);
+        var data = await _artNetPlayer.Load(path);
 
         loadingUI.Hide();
         
@@ -98,7 +106,7 @@ public class PlayerPresenter : Presenter<PlayerModel>
         playerUI.SetAsPlayVisual();
     
         // initialize buffers
-        artNetPlayer.Initialize(maxUniverseNum);
+        _artNetPlayer.Initialize(maxUniverseNum);
 
         initialized = true;
     }
@@ -109,7 +117,7 @@ public class PlayerPresenter : Presenter<PlayerModel>
         
         // ここでヘッダ読んでくる
         header = playerUI.GetSliderPosition() * endTime;
-        endTime = artNetPlayer.GetDuration();
+        endTime = _artNetPlayer.GetDuration();
         
         playerUI.SetAsPauseVisual();
         

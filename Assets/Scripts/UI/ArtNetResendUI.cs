@@ -1,6 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using System.Net;
+using inc.stu.SyncArena;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,50 +9,26 @@ public class ArtNetResendUI : MonoBehaviour
 {
 
     [SerializeField] private Toggle enableToggle;
-    [SerializeField] private InputField ipInputField;
-    [SerializeField] private InputField portInputField;
+    [SerializeField] private StringInputField ipInputField;
+    [SerializeField] private IntInputField portInputField;
 
-    public bool IsEnabled => isValidated && enableToggle.isOn;
-    public int Port => port;
-    public IPAddress IPAddress => ipAddress;
+    public IObservable<bool> IsEnabled => enableToggle.OnValueChangedAsObservable();
+    public IObservable<int> OnPortChanged => portInputField.OnValueChanged;
+    public IObservable<IPAddress> OnIpChanged => ipInputField.OnValueChanged.Select(IPAddress.Parse);
 
-    private bool isValidated;
-
-    private int port;
-    private IPAddress ipAddress;
-
-    private void Start()
+    public void SetToggleWithoutNotify(bool isOn)
     {
-        ipInputField.OnValueChangedAsObservable().Subscribe(t =>
-        {
-            if (IPAddress.TryParse(t, out var address))
-            {
-                isValidated = true;
-                ipAddress = address;
-                ipInputField.image.color = Color.cyan;
-            }
-            else
-            {
-                isValidated = false;
-                ipInputField.image.color = Color.red;
-            }
-        }).AddTo(this);
-
-        portInputField.OnValueChangedAsObservable().Subscribe(t =>
-        {
-            if (int.TryParse(t, out var value))
-            {
-                isValidated = true;
-                port = value;
-                portInputField.image.color = Color.cyan;
-            }
-            else
-            {
-                isValidated = false;
-                portInputField.image.color = Color.red;
-            }
-        }).AddTo(this);
+        enableToggle.SetIsOnWithoutNotify(isOn);
     }
     
+    public void SetIpWithoutNotify(IPAddress ip)
+    {
+        ipInputField.SetValueWithoutNotify(ip.ToString());
+    }
+
+    public void SetPortWithoutNotify(int port)
+    {
+        portInputField.SetValueWithoutNotify(port);
+    }
 
 }

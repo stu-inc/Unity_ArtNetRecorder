@@ -1,23 +1,33 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using Cysharp.Threading.Tasks;
 using Mono.Cecil.Cil;
 using ProjectBlue;
 using UnityEngine;
 
-public class ArtNetPlayer : MonoBehaviour
+public class ArtNetPlayer
 {
-
-    [SerializeField] private ArtNetResendUI artNetResendUI;
-
+    
     private DmxRecordData dmxRecordData;
 
     private byte[][] dmx;
     private float[] dmxRaw;
 
     UdpClient udpClient = new();
+
+    private IPAddress _destinationIp;
+    private int _destinationPort;
+    
+    private bool _isPlaying;
+
+    public void SetDestination(IPAddress ip, int port)
+    {
+        _destinationIp = ip;
+        _destinationPort = port;
+    }
 
     public async UniTask<DmxRecordData> Load(string path)
     {
@@ -70,7 +80,7 @@ public class ArtNetPlayer : MonoBehaviour
 
                     Buffer.BlockCopy(universeData.data, 0, dmx[universeData.universe], 0, universeData.data.Length);
 
-                    if (artNetResendUI.IsEnabled)
+                    if (_isPlaying)
                     {
                         var artNetPacket = new ArtNetDmxPacket
                         {
@@ -80,7 +90,7 @@ public class ArtNetPlayer : MonoBehaviour
                         
                         var artNetPacketBytes = artNetPacket.ToArray();
 
-                        udpClient.Send(artNetPacketBytes, artNetPacketBytes.Length, artNetResendUI.IPAddress.ToString(), artNetResendUI.Port);
+                        udpClient.Send(artNetPacketBytes, artNetPacketBytes.Length, _destinationIp.ToString(), _destinationPort);
                     }
 
                     // universe
