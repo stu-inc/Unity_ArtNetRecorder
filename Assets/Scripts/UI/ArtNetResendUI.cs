@@ -12,13 +12,12 @@ public class ArtNetResendUI : MonoBehaviour
     [SerializeField] private StringInputField ipInputField;
     [SerializeField] private IntInputField portInputField;
 
-    public IObservable<bool> IsEnabled => enableToggle.OnValueChangedAsObservable();
+    public IObservable<bool> IsEnabled => enableToggle.onValueChanged.AsObservable();
     public IObservable<int> OnPortChanged => portInputField.OnValueChanged;
     public IObservable<IPAddress> OnIpChanged => ipInputField.OnEndEdit.Select(IPAddress.Parse);
 
     public void SetToggleWithoutNotify(bool isOn)
     {
-        Debug.Log($"isOn : {isOn}");
         enableToggle.SetIsOnWithoutNotify(isOn);
     }
     
