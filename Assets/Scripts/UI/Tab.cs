@@ -5,62 +5,38 @@ using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
-[Serializable]
-public class ButtonAndCanvasGroupPair
-{
-    public Button button;
-    public CanvasGroup canvasGroup;
-}
-
 public class Tab : MonoBehaviour
 {
 
     [SerializeField] private Color disabledBackgroundColor;
     [SerializeField] private Color enabledBackgroundColor;
 
-    [SerializeField] private List<ButtonAndCanvasGroupPair> pairs;
+    [SerializeField] private List<Button> buttons;
     
-    private Subject<int> onSelected = new Subject<int>();
-
+    private Subject<int> onSelected = new();
     public IObservable<int> OnSelected => onSelected;
 
     // TODO: Tabの中で切り替え処理までやってしまって良いものか迷い中
     private async void Start()
     {
-
-
-        for (var i = 0; i < pairs.Count; i++)
+        
+        for (var i = 0; i < buttons.Count; i++)
         {
             var i1 = i;    // capture
-            pairs[i1].button.OnClickAsObservable().Subscribe(_ =>
+            buttons[i1].OnClickAsObservable().Subscribe(_ =>
             {
                 onSelected.OnNext(i1);
-                pairs.ForEach(pair =>
+                buttons.ForEach(pair =>
                 {
-                    if (pair.button != null)
+                    if (pair != null)
                     {
-                        pair.button.targetGraphic.color = disabledBackgroundColor;
+                        pair.targetGraphic.color = disabledBackgroundColor;
                     }
-                    
-                    if (pair.canvasGroup != null)
-                    {
-                        pair.canvasGroup.alpha = 0;
-                        pair.canvasGroup.interactable = false;
-                        pair.canvasGroup.blocksRaycasts = false;
-                    }
-                    
                 });
                 
-                if (pairs[i1].button != null)
+                if (buttons[i1] != null)
                 {
-                    pairs[i1].button.targetGraphic.color = enabledBackgroundColor;
-                }
-
-                if (pairs[i1].canvasGroup != null)
-                {
-                    pairs[i1].canvasGroup.alpha = 1;
-                    pairs[i1].canvasGroup.interactable = true;
-                    pairs[i1].canvasGroup.blocksRaycasts = true;
+                    buttons[i1].targetGraphic.color = enabledBackgroundColor;
                 }
 
             }).AddTo(this);
@@ -68,24 +44,24 @@ public class Tab : MonoBehaviour
 
         await Task.Delay(TimeSpan.FromSeconds(0.1f));
         
-        pairs[0].button.onClick.Invoke();
+        buttons[0].onClick.Invoke();
         
     }
 
 
     public void Disable()
     {
-        pairs.ForEach(pair =>
+        buttons.ForEach(button =>
         {
-            pair.button.interactable = false;
+            button.interactable = false;
         });
     }
 
     public void Enable()
     {
-        pairs.ForEach(pair =>
+        buttons.ForEach(button =>
         {
-            pair.button.interactable = true;
+            button.interactable = true;
         });
     }
     
