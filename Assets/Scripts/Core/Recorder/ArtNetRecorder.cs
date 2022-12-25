@@ -14,9 +14,6 @@ using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-
-
-
 namespace ProjectBlue.ArtNetRecorder
 {
 
@@ -33,11 +30,10 @@ namespace ProjectBlue.ArtNetRecorder
         static volatile bool loopFlg = true;
 
         private static byte[][] dmx = new byte[Const.MaxUniverse][];
-        private static byte[] dmxRaw = new byte[Const.MaxUniverse * 512];
         
-        private ConcurrentQueue<DmxRecordingPacket> dmxBuff = new ConcurrentQueue<DmxRecordingPacket>();
+        private ConcurrentQueue<DmxRecordingPacket> dmxBuff = new();
         
-        private ConcurrentQueue<(int, int, int)> indicatorBuff = new ConcurrentQueue<(int, int, int)>();
+        private ConcurrentQueue<(int, int, int)> indicatorBuff = new();
 
         private const double FixedDeltaTime = 1.0d / 60.0d;
         
@@ -52,7 +48,6 @@ namespace ProjectBlue.ArtNetRecorder
         public ArtNetRecorder(int port) : base(port)
         {
             dmx = new byte[Const.MaxUniverse][];
-            dmxRaw = new byte[Const.MaxUniverse * 512];
 
             loopFlg = true;
 
