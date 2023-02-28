@@ -17,7 +17,7 @@ namespace com.kodai100.ArtNetApp.Application
         
             SetupPresenter(_model);
         
-            Logger.Log("Changed to ArtNet Sender");
+            // Logger.Log("Changed to ArtNet Sender");
         }
 
         private void SetupPresenter(PlayerModel model)

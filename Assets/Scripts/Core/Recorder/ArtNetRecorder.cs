@@ -42,7 +42,6 @@ namespace com.kodai100.ArtNetRecorder
         private Stopwatch recordingStopWatch = new Stopwatch();
         private uint recordingSequenceNumber = 0;
 
-        private SynchronizationContext synchronizationContext;
 
         private CompositeDisposable disposable;
         private CancellationTokenSource cts;
@@ -54,7 +53,6 @@ namespace com.kodai100.ArtNetRecorder
 
             loopFlg = true;
 
-            synchronizationContext = SynchronizationContext.Current;
             disposable = new CompositeDisposable();
             cts = new CancellationTokenSource();
             
@@ -206,7 +204,7 @@ namespace com.kodai100.ArtNetRecorder
                 {
                     using var udpClient = new UdpClient(ip);
 
-                    Log($"ポート{Port}でArtNet受信接続が確立されました。収録を開始できます。");
+                    Logger.Log($"ポート{Port}でArtNet受信接続が確立されました。収録を開始できます。");
 
                     var fixedFramerateStopwatch = new Stopwatch();
                     var dt = 0.0d;
@@ -282,12 +280,12 @@ namespace com.kodai100.ArtNetRecorder
                         {
                             if (e.InnerException is TaskCanceledException)
                             { 
-                                Log("ArtNet Receive Task canceled");
+                                Logger.Log("ArtNet Receive Task canceled");
                             }
                             break;
                         }
                         case TaskCanceledException _:
-                            Log("ArtNet Receive Task canceled");
+                            Logger.Log("ArtNet Receive Task canceled");
                             break;
                         case SocketException _:
                             throw;
@@ -297,7 +295,7 @@ namespace com.kodai100.ArtNetRecorder
                     }
 
                     
-                    Log($"ArtNetを正常に切断し、ポート{Port}が開放されました。");
+                    Logger.Log($"ArtNetを正常に切断し、ポート{Port}が開放されました。");
                 }
 
             }, cancellationToken);
@@ -309,38 +307,13 @@ namespace com.kodai100.ArtNetRecorder
                 {
                     if (agg.InnerException is SocketException)
                     {
-                        LogError($"ポート{Port}が他のアプリケーションによって専有されています");
-                        ErrorDialog($"ポート{Port}が他のアプリケーションによって\n専有されています");
+                        Logger.Error($"ポート{Port}が他のアプリケーションによって専有されています");
+                        DialogManager.OpenErrorThreadSafe($"ポート{Port}が他のアプリケーションによって\n専有されています");
                     }
                 }
             }, cancellationToken);
             
         }
 
-        private void Log(string message)
-        {
-            Debug.Log(message);
-            
-            synchronizationContext.Post(__ =>
-            {
-                Logger.Log(message);
-            }, null);
-        }
-        
-        private void LogError(string message)
-        {
-            synchronizationContext.Post(__ =>
-            {
-                Logger.Error(message);
-            }, null);
-        }
-
-        private void ErrorDialog(string message)
-        {
-            synchronizationContext.Post(__ =>
-            {
-                DialogManager.OpenError(message).Forget();
-            }, null);
-        }
     }
 }

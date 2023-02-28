@@ -1,3 +1,4 @@
+using System.Threading;
 using UnityEngine;
 
 
@@ -7,14 +8,34 @@ public class Logger : SingletonMonoBehaviour<Logger>
 
     [SerializeField] private StatusTextUI statusTextUI;
 
+    
+    private static SynchronizationContext synchronizationContext;
+    
+    private void Awake()
+    {
+        synchronizationContext = SynchronizationContext.Current;
+    }
+
     public static void Log(string message)
     {
-        Instance.statusTextUI.Log(message);
+        Debug.Log(message);
+        
+        synchronizationContext.Post(__ =>
+        {
+            Instance.statusTextUI.Log(message);
+        }, null);
+        
+        
     }
 
     public static void Error(string message)
     {
-        Instance.statusTextUI.Error(message);
+        Debug.LogError(message);
+        
+        synchronizationContext.Post(__ =>
+        {
+            Instance.statusTextUI.Error(message);
+        }, null);
     }
     
 
