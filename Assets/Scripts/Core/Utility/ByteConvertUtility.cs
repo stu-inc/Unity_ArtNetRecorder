@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ProjectBlue
+namespace com.kodai100
 {
     using unsafety;
 

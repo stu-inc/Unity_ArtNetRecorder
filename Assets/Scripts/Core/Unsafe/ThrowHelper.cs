@@ -1,4 +1,4 @@
-﻿namespace ProjectBlue.unsafety
+﻿namespace com.kodai100.unsafety
 {
     // This file defines an internal class used to throw exceptions in BCL code.
     // The main purpose is to reduce code size. 

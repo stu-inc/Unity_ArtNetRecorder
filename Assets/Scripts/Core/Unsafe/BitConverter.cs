@@ -1,4 +1,4 @@
-﻿namespace ProjectBlue.unsafety
+﻿namespace com.kodai100.unsafety
 {
 
     using System;

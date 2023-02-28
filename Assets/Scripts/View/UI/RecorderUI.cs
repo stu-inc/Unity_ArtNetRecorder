@@ -1,21 +1,21 @@
 using System;
+using com.kodai100.ArtNetApp.View;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace ProjectBlue.ArtNetRecorder
+namespace com.kodai100.ArtNetApp.View
 {
-
 
     public class RecorderUI : MonoBehaviour
     {
 
         [SerializeField] private Text timeCodeText;
 
-        [SerializeField] private RecordButton recordButton;
+        [SerializeField] private ToggleButton recordButton;
         
         [SerializeField] private IndicatorUI indicatorUI;
         
-        public RecordButton RecordButton => recordButton;
+        public ToggleButton RecordButton => recordButton;
 
         public IndicatorUI IndicatorUI => indicatorUI;
 
@@ -25,7 +25,7 @@ namespace ProjectBlue.ArtNetRecorder
         public void Initialize()
         {
             
-            recordButton.SetRecord();
+            recordButton.Release();
             indicatorUI.ResetIndicator();
             timeCodeText.text = "00:00:00:00";
             

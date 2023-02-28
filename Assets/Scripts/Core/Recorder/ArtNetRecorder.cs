@@ -8,16 +8,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using com.kodai100.ArtNet;
 using Cysharp.Threading.Tasks;
 using UniRx;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-
-
-
-namespace ProjectBlue.ArtNetRecorder
+namespace com.kodai100.ArtNetRecorder
 {
 
     public struct DmxRecordingPacket
@@ -35,9 +33,9 @@ namespace ProjectBlue.ArtNetRecorder
         private static byte[][] dmx = new byte[Const.MaxUniverse][];
         private static byte[] dmxRaw = new byte[Const.MaxUniverse * 512];
         
-        private ConcurrentQueue<DmxRecordingPacket> dmxBuff = new ConcurrentQueue<DmxRecordingPacket>();
+        private ConcurrentQueue<DmxRecordingPacket> dmxBuff = new();
         
-        private ConcurrentQueue<(int, int, int)> indicatorBuff = new ConcurrentQueue<(int, int, int)>();
+        private ConcurrentQueue<(int, int, int)> indicatorBuff = new();
 
         private const double FixedDeltaTime = 1.0d / 60.0d;
         
@@ -208,7 +206,7 @@ namespace ProjectBlue.ArtNetRecorder
                 {
                     using var udpClient = new UdpClient(ip);
 
-                    Debug.Log("ArtNet Client Established");
+                    Log($"ポート{Port}でArtNet受信接続が確立されました。収録を開始できます。");
 
                     var fixedFramerateStopwatch = new Stopwatch();
                     var dt = 0.0d;
@@ -283,13 +281,13 @@ namespace ProjectBlue.ArtNetRecorder
                         case AggregateException _:
                         {
                             if (e.InnerException is TaskCanceledException)
-                            {
-                                Debug.Log("ArtNet Receive Task canceled");
+                            { 
+                                Log("ArtNet Receive Task canceled");
                             }
                             break;
                         }
                         case TaskCanceledException _:
-                            Debug.Log("ArtNet Receive Task canceled");
+                            Log("ArtNet Receive Task canceled");
                             break;
                         case SocketException _:
                             throw;
@@ -299,7 +297,7 @@ namespace ProjectBlue.ArtNetRecorder
                     }
 
                     
-                    Debug.Log("ArtNet Server finished");
+                    Log($"ArtNetを正常に切断し、ポート{Port}が開放されました。");
                 }
 
             }, cancellationToken);
@@ -311,15 +309,38 @@ namespace ProjectBlue.ArtNetRecorder
                 {
                     if (agg.InnerException is SocketException)
                     {
-                        synchronizationContext.Post(__ =>
-                        {
-                            Logger.Error($"ポート{Port}が他のアプリケーションによって専有されています");
-                            DialogManager.OpenError($"ポート{Port}が他のアプリケーションによって\n専有されています").Forget();
-                        }, null);
+                        LogError($"ポート{Port}が他のアプリケーションによって専有されています");
+                        ErrorDialog($"ポート{Port}が他のアプリケーションによって\n専有されています");
                     }
                 }
             }, cancellationToken);
             
+        }
+
+        private void Log(string message)
+        {
+            Debug.Log(message);
+            
+            synchronizationContext.Post(__ =>
+            {
+                Logger.Log(message);
+            }, null);
+        }
+        
+        private void LogError(string message)
+        {
+            synchronizationContext.Post(__ =>
+            {
+                Logger.Error(message);
+            }, null);
+        }
+
+        private void ErrorDialog(string message)
+        {
+            synchronizationContext.Post(__ =>
+            {
+                DialogManager.OpenError(message).Forget();
+            }, null);
         }
     }
 }

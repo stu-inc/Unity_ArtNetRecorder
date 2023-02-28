@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 public abstract class App : MonoBehaviour
 {
@@ -12,11 +13,22 @@ public abstract class ApplicationBase<TModel, TPresenter> : App where TModel : M
 {
     
     protected TModel _model;
-   
-    [SerializeField] protected TPresenter _presenter;
+
+    [SerializeField] protected RectTransform _presenterParentTransform;
+    [SerializeField] protected TPresenter _presenterPrefab;
+
+    protected TPresenter _presenterInstance;
 
     protected List<IDisposable> _disposables = new();
 
+    private void Awake()
+    {
+        foreach (Transform child in _presenterParentTransform)
+        {
+            Destroy(child.gameObject);
+        }
+    }
+    
     public override void OnClose()
     {
         OnDestroy();
@@ -24,7 +36,7 @@ public abstract class ApplicationBase<TModel, TPresenter> : App where TModel : M
 
     public override void OnOpen(ProjectDataManager projectDataManager)
     {
-        _presenter?.Initialize();
+        _presenterInstance = Instantiate(_presenterPrefab, _presenterParentTransform);
     }
     
     protected void OnDestroy()
@@ -35,8 +47,12 @@ public abstract class ApplicationBase<TModel, TPresenter> : App where TModel : M
         {
             disposable.Dispose();
         });
+
+        if (_presenterInstance != null)
+        {
+            DestroyImmediate(_presenterInstance.gameObject);
+        }
         
-        _presenter?.Dispose();
     }
 
 }

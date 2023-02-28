@@ -1,6 +1,6 @@
 using System;
 
-namespace ProjectBlue.ArtNetRecorder
+namespace com.kodai100.ArtNetRecorder
 {
 
     public struct SaveResult

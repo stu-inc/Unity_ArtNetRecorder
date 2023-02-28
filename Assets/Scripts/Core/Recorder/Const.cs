@@ -1,4 +1,4 @@
-﻿namespace ProjectBlue
+﻿namespace com.kodai100.ArtNetRecorder
 {
     public sealed class Const
     {

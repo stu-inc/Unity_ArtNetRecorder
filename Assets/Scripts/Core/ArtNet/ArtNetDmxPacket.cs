@@ -1,40 +1,45 @@
-public class ArtNetDmxPacket : ArtNetPacket
+
+namespace com.kodai100.ArtNet
 {
-    public ArtNetDmxPacket()
-        : base(ArtNetOpCodes.Dmx)
+    public class ArtNetDmxPacket : ArtNetPacket
     {
-    }
-
-    #region Packet Properties
-
-    public byte Sequence { get; set; } = 0;
-
-    public byte Physical { get; set; } = 0;
-
-    public short Universe { get; set; } = 0;
-
-    public short Length
-    {
-        get
+        public ArtNetDmxPacket()
+            : base(ArtNetOpCodes.Dmx)
         {
-            if (DmxData == null)
-                return 0;
-            return (short)DmxData.Length;
         }
-    }
 
-    public byte[] DmxData { get; set; } = null;
+        #region Packet Properties
+
+        public byte Sequence { get; set; } = 0;
+
+        public byte Physical { get; set; } = 0;
+
+        public short Universe { get; set; } = 0;
+
+        public short Length
+        {
+            get
+            {
+                if (DmxData == null)
+                    return 0;
+                return (short)DmxData.Length;
+            }
+        }
+
+        public byte[] DmxData { get; set; } = null;
     
-    public override void WriteData(ArtNetBinaryWriter data)
-    {
-        base.WriteData(data);
+        public override void WriteData(ArtNetBinaryWriter data)
+        {
+            base.WriteData(data);
 
-        data.Write(Sequence);
-        data.Write(Physical);
-        data.Write(Universe);
-        data.WriteNetwork(Length);
-        data.Write(DmxData);
+            data.Write(Sequence);
+            data.Write(Physical);
+            data.Write(Universe);
+            data.WriteNetwork(Length);
+            data.Write(DmxData);
+        }
+
+        #endregion
     }
 
-    #endregion
 }

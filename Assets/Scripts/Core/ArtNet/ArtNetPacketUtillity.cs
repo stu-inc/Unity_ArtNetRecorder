@@ -1,7 +1,8 @@
 ﻿using System.Linq;
+using com.kodai100.ArtNetRecorder;
 using Unity.Collections.LowLevel.Unsafe;
 
-namespace ProjectBlue
+namespace com.kodai100.ArtNet
 {
     public static class ArtNetPacketUtillity
     {
