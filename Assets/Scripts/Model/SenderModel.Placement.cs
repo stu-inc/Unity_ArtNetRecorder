@@ -47,6 +47,9 @@ namespace com.kodai100.ArtNetApp.Models
                 if(t == null) continue;
                 t.OrderIndex = target.OrderIndex;
             }
+            
+            // TODO: projectDataManagerに反映していないので、順序を変えてUniverse変更すると元に戻ってしまう
+            // TODO: ProjectDataManagerで差分検知したいところ
         
             _fixturePlacementList.SetValueAndForceNotify(_fixturePlacementList.Value.OrderBy(x => x.OrderIndex).ToList());
         }
