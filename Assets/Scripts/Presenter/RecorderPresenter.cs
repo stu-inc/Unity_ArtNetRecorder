@@ -1,11 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using com.kodai100.ArtNetApp.Models;
 using com.kodai100.ArtNetApp.View;
 using inc.stu.DmxRecorder;
 using inc.stu.SyncArena;
 using UniRx;
-using UnityEditor;
 using UnityEngine;
 
 namespace com.kodai100.ArtNetApp.Presenter

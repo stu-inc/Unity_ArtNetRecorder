@@ -294,5 +294,5 @@ MonoBehaviour:
   _button: {fileID: 7178885806887577410}
   _text: {fileID: 4431155463311798896}
   _backgroundImage: {fileID: 7178885806887577421}
-  _pressedColor: {r: 0.4339623, g: 0.1780883, b: 0.18036148, a: 1}
+  _pressedColor: {r: 0.25882354, g: 0.10980393, b: 0.10980393, a: 1}
   _releasedColor: {r: 0.25882354, g: 0.25882354, b: 0.25882354, a: 1}

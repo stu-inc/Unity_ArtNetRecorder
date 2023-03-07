@@ -1,7 +1,8 @@
+using com.kodai100.ArtNetApp.Models;
+using com.kodai100.ArtNetApp.Presenter;
 using UniRx;
-using UnityEngine;
 
-namespace com.kodai100.ArtNetApp.Presenter
+namespace com.kodai100.ArtNetApp.Application
 {
     public class DmxRecorderApplication : ApplicationBase<RecorderModel, RecorderPresenter>
     {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using com.kodai100.ArtNetApp.Models;
 using UnityEngine;
 using UniRx;
 
@@ -27,6 +28,9 @@ namespace com.kodai100.ArtNetApp
         private void Start()
         {
 
+            // TODO: Load Data
+            _projectDataManager.MockupProjectData();
+            
             var dict = _applications.ToDictionary(x => Guid.Parse(x.Guid), x => x.Label);
             _applicationTab.Initialize(dict);
             
