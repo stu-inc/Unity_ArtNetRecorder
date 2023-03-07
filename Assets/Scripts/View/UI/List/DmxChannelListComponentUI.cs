@@ -21,7 +21,7 @@ namespace com.kodai100.ArtNetApp.View
             _text.text = data.ChannelName;
             _channelInputField.text = data.ChannelIndex.ToString();
             
-            _slider.value = data.ChannelValue / 255f;
+            _slider.value = data.ChannelValue;
             _channelValueInputField.text = data.ChannelValue.ToString();
 
         }
