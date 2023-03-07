@@ -10,6 +10,9 @@ namespace com.kodai100.ArtNetApp.View
 
         protected override ReorderableListComponentView<FixturePlacementEntity> ReorderableListComponentViewPrefab =>
             _componentViewPrefab;
+        
+        
+        
     }
 }
 

@@ -1,5 +1,7 @@
+using System;
 using com.kodai100.ArtNetApp.Entities;
 using TMPro;
+using UniRx;
 using UnityEngine;
 
 namespace com.kodai100.ArtNetApp.View
@@ -10,7 +12,8 @@ namespace com.kodai100.ArtNetApp.View
         [SerializeField] private TMP_Text _text;
         [SerializeField] private UnityEngine.UI.Button _deleteButton;
         [SerializeField] private UnityEngine.UI.Button _editButton;
-        
+        public IObservable<Guid> OnEditButtonClicked => _editButton.OnClickAsObservable().Select(_ => _data.Guid);
+
         public override void Initialize(FixturePresetEntity data)
         {
             base.Initialize(data);

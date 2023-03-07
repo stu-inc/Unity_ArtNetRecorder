@@ -17,7 +17,7 @@ namespace com.kodai100.ArtNetApp.View
         protected Subject<Guid> _onComponentSelected = new();
         public IObservable<Guid> OnComponentSelected => _onComponentSelected;
         
-        private List<ListComponentView<T>> _listComponents = new();
+        protected List<ListComponentView<T>> _listComponents = new();
         
         protected List<IDisposable> _disposables = new();
         

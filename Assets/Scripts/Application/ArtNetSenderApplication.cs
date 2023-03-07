@@ -40,19 +40,24 @@ namespace com.kodai100.ArtNetApp.Application
 
                 _presenterInstance.OnFixturePresetSelected.Subscribe(guid =>
                 {
+                    model.PlaceFixtureFromPreset(guid);  // 選択するとインスタンス化を想定しているので、記録はしない
+                }).AddTo(_disposables);
+
+                _presenterInstance.OnEditButtonClicked.Subscribe(guid =>
+                {
                     model.UpdateFixturePresetSelection(guid);
                 }).AddTo(_disposables);
 
-                _presenterInstance.OnRemoveButtonClicked.Subscribe(_ =>
-                {
-                    model.RemoveFixturePresetData();
-                }).AddTo(_disposables);
+                // _presenterInstance.OnRemoveButtonClicked.Subscribe(_ =>
+                // {
+                //     model.RemoveFixturePresetData();
+                // }).AddTo(_disposables);
 
                 // _presenterInstance.OnClearButtonClicked.Subscribe(_ =>
                 // {
                 //     model.ClearFixturePresetData();
                 // }).AddTo(_disposables);
-        
+
             }
 
             private void SetupFixturePlacementPresenter(SenderModel model)

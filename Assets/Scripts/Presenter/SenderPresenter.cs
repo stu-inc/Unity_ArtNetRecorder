@@ -29,13 +29,15 @@ namespace com.kodai100.ArtNetApp.Presenter
         [SerializeField] private FixturePresetListUI _fixturePresetListUI;
 
         [SerializeField] private Button _addButton;
-        [SerializeField] private Button _removeButton;
+        // [SerializeField] private Button _removeButton;
         // [SerializeField] private Button _clearButton;
         
         public IObservable<Guid> OnFixturePresetSelected => _fixturePresetListUI.OnComponentSelected;
-        
+        public IObservable<Guid> OnEditButtonClicked => _fixturePresetListUI.OnComponentEditButtonClicked;
+
         public IObservable<Unit> OnAddButtonClicked => _addButton.OnClickAsObservable();
-        public IObservable<Unit> OnRemoveButtonClicked => _removeButton.OnClickAsObservable();
+        
+        // public IObservable<Unit> OnRemoveButtonClicked => _removeButton.OnClickAsObservable();
         // public IObservable<Unit> OnClearButtonClicked => _clearButton.OnClickAsObservable();
         
         private IEnumerable<IDisposable> BindFixturePresetList(SenderModel model)

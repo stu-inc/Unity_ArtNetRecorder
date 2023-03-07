@@ -104,7 +104,39 @@ namespace com.kodai100.ArtNetApp.Models
             
             _universe.Value -= 1;
         }
+
+
+        /// <summary>
+        /// ワンショットトリガー
+        /// </summary>
+        /// <param name="guid"></param>
+        public void PlaceFixtureFromPreset(Guid presetGuid)
+        {
+
+            var preset = _projectDataManager.FixturePresetList.Value.FirstOrDefault(x => x.Guid == presetGuid);
+            
+            if(preset == null) return;
         
+            var data = new FixturePlacementEntity()
+            {
+                Guid = Guid.NewGuid(),
+                OrderIndex = _fixturePresetList.Value.Count,
+                Name = preset.Name,
+                Universe = _universe.Value,
+                PresetReferenceGuid = presetGuid
+            };
+        
+            // TODO: プロジェクトデータに追加して
+            // 現在選択中のUniverseでフィルタして表示する
+            _projectDataManager.FixturePlacementList.Value.Add(data);
+
+            var target = 
+                _projectDataManager
+                    .FixturePlacementList.Value.Where(x => x.Universe == _universe.Value)
+                    .OrderBy(x => x.OrderIndex).ToList();
+            
+            _fixturePlacementList.SetValueAndForceNotify(target);
+        }
         
     }
 
