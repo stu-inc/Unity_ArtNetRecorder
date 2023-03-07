@@ -28,7 +28,7 @@ namespace com.kodai100.ArtNetApp.Models
         {
             var selectedTarget = _fixturePlacementList.Value.FirstOrDefault(x => x.Guid == id);
             Debug.Log($"Update Selection : {id}");
-            _selectedFixturePlacementEntity.SetValueAndForceNotify(selectedTarget);
+            _selectedFixturePlacementEntity.Value = selectedTarget;
         }
 
         public void UpdateSelectedFixturePlacementData(string name)

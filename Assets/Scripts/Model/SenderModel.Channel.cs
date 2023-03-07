@@ -10,7 +10,7 @@ namespace com.kodai100.ArtNetApp.Models
     public partial class SenderModel
     {
         
-        private ReactiveProperty<List<DmxChannelEntity>> _dmxChannelList = new(new List<DmxChannelEntity>());
+        private readonly ReactiveProperty<List<DmxChannelEntity>> _dmxChannelList = new(new List<DmxChannelEntity>());
         public IReadOnlyReactiveProperty<List<DmxChannelEntity>> DmxChannelList => _dmxChannelList;
     
         private readonly ReactiveProperty<DmxChannelEntity> _selectedDmxChannelEntity = new(null);
@@ -18,7 +18,6 @@ namespace com.kodai100.ArtNetApp.Models
 
         private void InitializeDmxChannelModel(ProjectDataManager projectDataManager)
         {
-            _dmxChannelList = projectDataManager.DmxChannelList;
         }
         
         public void UpdateDmxChannelSelection(Guid? id)
