@@ -56,12 +56,16 @@ namespace com.kodai100.ArtNetApp.Presenter
     {
         
         [SerializeField] private FixturePlacementListUI _fixturePlacementListUI;
-
         public IObservable<Guid> OnFixturePlacementSelected => _fixturePlacementListUI.OnComponentSelected;
-        
         public IObservable<IEnumerable<ReorderableEntity>> OnFixturePlacementOrderChanged => _fixturePlacementListUI.OnListOrderChanged;
         
         
+        [SerializeField] private UniverseSelectionUI _universeSelectionUI;
+        public IObservable<int> OnUniverseInputChanged => _universeSelectionUI.OnUniverseInputFieldValueChanged;
+        public IObservable<Unit> OnIncrementUniverseButtonClicked => _universeSelectionUI.OnIncrementButtonClicked;
+        public IObservable<Unit> OnDecrementUniverseButtonClicked => _universeSelectionUI.OnDecrementButtonClicked;
+
+
         private IEnumerable<IDisposable> BindFixturePlacementList(SenderModel model)
         {
             yield return model.FixturePlacementList.Subscribe(dataList =>
@@ -73,6 +77,14 @@ namespace com.kodai100.ArtNetApp.Presenter
             {
                 _fixturePlacementListUI.MarkAsSelected(selectedData?.Guid);
             });
+            
+            
+            
+            // Universe selection
+            yield return model.Universe.Subscribe(dataList =>
+            {
+                _universeSelectionUI.SetValueWithoutNotify(dataList);
+            });
         }
     }
 
@@ -81,11 +93,8 @@ namespace com.kodai100.ArtNetApp.Presenter
     {
         
         [SerializeField] private DmxChannelListUI _dmxChannelListUI;
-
         public IObservable<Guid> OnDmxChannelSelected => _dmxChannelListUI.OnComponentSelected;
-        
         public IObservable<IEnumerable<ReorderableEntity>> OnDmxChannelOrderChanged => _dmxChannelListUI.OnListOrderChanged;
-        
         
         private IEnumerable<IDisposable> BindDmxChannelList(SenderModel model)
         {
@@ -98,6 +107,7 @@ namespace com.kodai100.ArtNetApp.Presenter
             {
                 _dmxChannelListUI.MarkAsSelected(selectedData?.Guid);
             });
+            
         }
     }
 

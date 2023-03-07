@@ -11,15 +11,17 @@ namespace com.kodai100.ArtNetApp.Models
     {
         // Fixture Presets
         
-        private ReactiveProperty<List<FixturePlacementEntity>> _fixturePlacementList = new(new List<FixturePlacementEntity>());
+        private readonly ReactiveProperty<List<FixturePlacementEntity>> _fixturePlacementList = new(new List<FixturePlacementEntity>());
         public IReadOnlyReactiveProperty<List<FixturePlacementEntity>> FixturePlacementList => _fixturePlacementList;
     
         private readonly ReactiveProperty<FixturePlacementEntity> _selectedFixturePlacementEntity = new(null);
         public IReadOnlyReactiveProperty<FixturePlacementEntity> SelectedFixturePlacementEntity => _selectedFixturePlacementEntity;
 
+        private readonly ReactiveProperty<int> _universe = new(1);
+        public IReadOnlyReactiveProperty<int> Universe => _universe;
+
         private void InitializeFixturePlacementModel(ProjectDataManager projectDataManager)
         {
-            _fixturePlacementList = projectDataManager.FixturePlacementList;
         }
         
         public void UpdateFixturePlacementSelection(Guid? id)
@@ -83,6 +85,27 @@ namespace com.kodai100.ArtNetApp.Models
         //
         //     _selected.Value = null;
         // }
+
+
+        public void UpdateUniverse(int universe)
+        {
+            _universe.Value = universe;
+        }
+        
+        // Universe selection
+        public void IncrementUniverse()
+        {
+            _universe.Value += 1;
+        }
+
+        public void DecrementUniverse()
+        {
+            if(_universe.Value <= 0) return;
+            
+            _universe.Value -= 1;
+        }
+        
+        
     }
 
 }

@@ -66,6 +66,23 @@ namespace com.kodai100.ArtNetApp.Application
                 {
                     model.UpdateFixturePlacementOrder(list);
                 }).AddTo(_disposables);
+                
+                
+                // Universe Selection
+                _presenterInstance.OnUniverseInputChanged.Subscribe(universe =>
+                {
+                    model.UpdateUniverse(universe);
+                }).AddTo(_disposables);
+
+                _presenterInstance.OnIncrementUniverseButtonClicked.Subscribe(_ =>
+                {
+                    model.IncrementUniverse();
+                }).AddTo(_disposables);
+                
+                _presenterInstance.OnDecrementUniverseButtonClicked.Subscribe(_ =>
+                {
+                    model.DecrementUniverse();
+                }).AddTo(_disposables);
             }
             
             private void SetupDmxChannelPresenter(SenderModel model)
@@ -80,6 +97,7 @@ namespace com.kodai100.ArtNetApp.Application
                     model.UpdateDmxChannelOrder(list);
                 }).AddTo(_disposables);
             }
+            
     }
 
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UniRx;
 
 
@@ -9,6 +10,8 @@ namespace com.kodai100.ArtNetApp.Models
     {
 
         protected ProjectDataManager _projectDataManager;
+        
+        protected List<IDisposable> _disposables = new();
 
         public Model(ProjectDataManager projectDataManager)
         {
@@ -17,7 +20,10 @@ namespace com.kodai100.ArtNetApp.Models
 
         public virtual void Dispose()
         {
-
+            _disposables.ForEach(d =>
+            {
+                d.Dispose();
+            });
         }
     }
 
