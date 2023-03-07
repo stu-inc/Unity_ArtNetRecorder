@@ -10,7 +10,6 @@ namespace com.kodai100.ArtNetApp.View
     {
 
         [SerializeField] private TMP_Text _text;
-        [SerializeField] private UnityEngine.UI.Button _deleteButton;
         [SerializeField] private UnityEngine.UI.Button _editButton;
         public IObservable<Guid> OnEditButtonClicked => _editButton.OnClickAsObservable().Select(_ => _data.Guid);
 
@@ -18,7 +17,7 @@ namespace com.kodai100.ArtNetApp.View
         {
             base.Initialize(data);
             
-            _text.text = data.Name;
+            _text.text = data.FixtureName;
         }
 
     }

@@ -32,12 +32,7 @@ namespace com.kodai100.ArtNetApp.Application
 
             private void SetupFixturePresetPresenter(SenderModel model)
             {
-                  
-                _presenterInstance.OnAddButtonClicked.Subscribe(_ =>
-                {
-                    model.AddFixturePresetData();
-                }).AddTo(_disposables);
-
+                
                 _presenterInstance.OnFixturePresetSelected.Subscribe(guid =>
                 {
                     model.PlaceFixtureFromPreset(guid);  // 選択するとインスタンス化を想定しているので、記録はしない
@@ -47,16 +42,6 @@ namespace com.kodai100.ArtNetApp.Application
                 {
                     model.UpdateFixturePresetSelection(guid);
                 }).AddTo(_disposables);
-
-                // _presenterInstance.OnRemoveButtonClicked.Subscribe(_ =>
-                // {
-                //     model.RemoveFixturePresetData();
-                // }).AddTo(_disposables);
-
-                // _presenterInstance.OnClearButtonClicked.Subscribe(_ =>
-                // {
-                //     model.ClearFixturePresetData();
-                // }).AddTo(_disposables);
 
             }
 

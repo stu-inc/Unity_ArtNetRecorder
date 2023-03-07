@@ -121,10 +121,23 @@ namespace com.kodai100.ArtNetApp.Models
             {
                 Guid = Guid.NewGuid(),
                 OrderIndex = _fixturePresetList.Value.Count,
-                Name = preset.Name,
+                Name = preset.FixtureName,
                 Universe = _universe.Value,
                 PresetReferenceGuid = presetGuid
             };
+            
+            preset.Channels.ToList().ForEach(c =>
+            {
+                _projectDataManager.DmxChannelList.Value.Add(new DmxChannelEntity
+                {
+                    Guid = Guid.NewGuid(),
+                    OrderIndex = c.ChannelIndex,
+                    InstancedFixtureReferenceGuid = data.Guid,
+                    ChannelName = c.ChannelName,
+                    ChannelIndex = c.ChannelIndex,
+                    ChannelValue = 0
+                });
+            });
         
             // TODO: プロジェクトデータに追加して
             // 現在選択中のUniverseでフィルタして表示する
@@ -136,6 +149,8 @@ namespace com.kodai100.ArtNetApp.Models
                     .OrderBy(x => x.OrderIndex).ToList();
             
             _fixturePlacementList.SetValueAndForceNotify(target);
+
+            UpdateFixturePlacementSelection(data.Guid);
         }
         
     }

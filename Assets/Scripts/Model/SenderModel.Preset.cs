@@ -34,7 +34,7 @@ namespace com.kodai100.ArtNetApp.Models
         {
             if (_selectedFixturePresetEntity.Value == null) return;
 
-            _selectedFixturePresetEntity.Value.Name = name;
+            _selectedFixturePresetEntity.Value.FixtureName = name;
             _selectedFixturePresetEntity.SetValueAndForceNotify(_selectedFixturePresetEntity.Value);
         }
         
@@ -46,7 +46,7 @@ namespace com.kodai100.ArtNetApp.Models
             var data = new FixturePresetEntity
             {
                 Guid = guid,
-                Name = guid.ToString()
+                FixtureName = guid.ToString()
             };
         
             _fixturePresetList.Value.Add(data);
