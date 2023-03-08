@@ -67,8 +67,9 @@ namespace com.kodai100.ArtNetApp.View
             if (target != null)
             {
                 target.Select();
-                _prevSelected = guid;
             }
+            
+            _prevSelected = guid;
         }
 
         protected virtual void ClearAll()

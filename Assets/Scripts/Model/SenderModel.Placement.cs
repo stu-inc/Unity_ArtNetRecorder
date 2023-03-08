@@ -52,6 +52,8 @@ namespace com.kodai100.ArtNetApp.Models
             // TODO: ProjectDataManagerで差分検知したいところ
         
             _fixturePlacementList.SetValueAndForceNotify(_fixturePlacementList.Value.OrderBy(x => x.OrderIndex).ToList());
+
+            _selectedFixturePlacementEntity.Value = null;
         }
 
         public void AddFixturePlacementData()
