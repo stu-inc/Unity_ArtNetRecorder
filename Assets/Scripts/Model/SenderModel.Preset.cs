@@ -12,6 +12,13 @@ namespace com.kodai100.ArtNetApp.Models
     {
         // Fixture Presets
         
+        private ReactiveProperty<List<FixtureManufacturerEntity>> _fixtureManufacturerList = new(new List<FixtureManufacturerEntity>());
+        public IReadOnlyReactiveProperty<List<FixtureManufacturerEntity>> FixtureManufacturerList => _fixtureManufacturerList;
+
+        private readonly ReactiveProperty<FixtureManufacturerEntity> _selectedFixtureManufacturerEntity = new(null);
+        public IReadOnlyReactiveProperty<FixtureManufacturerEntity> SelectedFixtureManufacturerEntity => _selectedFixtureManufacturerEntity;
+
+        
         private ReactiveProperty<List<FixturePresetEntity>> _fixturePresetList = new(new List<FixturePresetEntity>());
         public IReadOnlyReactiveProperty<List<FixturePresetEntity>> FixturePresetList => _fixturePresetList;
     
@@ -20,7 +27,20 @@ namespace com.kodai100.ArtNetApp.Models
 
         private void InitializeFixturePresetModel(ProjectDataManager projectDataManager)
         {
-            _fixturePresetList = projectDataManager.FixturePresetList;
+            _fixtureManufacturerList = projectDataManager.FixtureManufacturerList;
+            // _fixturePresetList = projectDataManager.FixturePresetList;
+        }
+
+        public void UpdateManufacturerSelection(Guid? guid)
+        {
+            var selectedTarget = _fixtureManufacturerList.Value.FirstOrDefault(x => x.Guid == guid);
+            _selectedFixtureManufacturerEntity.SetValueAndForceNotify(selectedTarget);
+
+            if (selectedTarget != null)
+            {
+                _fixturePresetList.Value = _projectDataManager.FixturePresetList.Value
+                    .Where(x => x.Manufacturer == selectedTarget.ManufacturerName).ToList();
+            }
         }
         
         public void UpdateFixturePresetSelection(Guid? id)

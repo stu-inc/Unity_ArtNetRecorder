@@ -25,14 +25,28 @@ namespace com.kodai100.ArtNetApp.Presenter
 
     public partial class SenderPresenter
     {
-        
+
+        [SerializeField] private FixtureManufacturerListUI _fixtureManufacturerListUI;
         [SerializeField] private FixturePresetListUI _fixturePresetListUI;
+
+        public IObservable<Guid> OnFixtureManufacturerSelected => _fixtureManufacturerListUI.OnComponentSelected;
 
         public IObservable<Guid> OnFixturePresetSelected => _fixturePresetListUI.OnComponentSelected;
         public IObservable<Guid> OnEditButtonClicked => _fixturePresetListUI.OnComponentEditButtonClicked;
 
         private IEnumerable<IDisposable> BindFixturePresetList(SenderModel model)
         {
+            yield return model.FixtureManufacturerList.Subscribe(manufacturerList =>
+            {
+                _fixtureManufacturerListUI.Initialize(manufacturerList);
+            });
+            
+            yield return model.SelectedFixtureManufacturerEntity.Subscribe(selectedData =>
+            {
+                _fixtureManufacturerListUI.MarkAsSelected(selectedData?.Guid);
+            });
+            
+            
             yield return model.FixturePresetList.Subscribe(dataList =>
             {
                 _fixturePresetListUI.Initialize(dataList);

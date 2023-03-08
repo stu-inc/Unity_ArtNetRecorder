@@ -7,6 +7,15 @@ namespace com.kodai100.ArtNetApp.Models
     
     public static class MockupData
     {
+
+        public static IEnumerable<FixtureManufacturerEntity> FixtureManufacturerMockData =>
+            new List<FixtureManufacturerEntity>
+            {
+                new() { Guid = Guid.NewGuid(), ManufacturerName = "Robe"},
+                new() { Guid = Guid.NewGuid(), ManufacturerName = "Clay Paky"},
+                new() { Guid = Guid.NewGuid(), ManufacturerName = "GLP"},
+                new() { Guid = Guid.NewGuid(), ManufacturerName = "Martin Professional"},
+            };
         
         public static IEnumerable<FixturePresetEntity> FixturePresetMockData =>
             new List<FixturePresetEntity>
@@ -60,10 +69,30 @@ namespace com.kodai100.ArtNetApp.Models
                         new Channel{ChannelIndex = 38, ChannelName = "Dimmer intensity - fine"},
                     }
                 },
-                new() { Guid = Guid.Parse("f581d163-dfe8-4c09-ab78-22f92d38e15c"), FixtureName = "GLP Impression X4 [14ch]" },
-                new() { Guid = Guid.Parse("5e9f5d57-befb-401c-9daf-289ecb5d62fe"), FixtureName = "GLP Impression X5 [14ch]" },
-                new() { Guid = Guid.Parse("473ebaa1-d0be-4014-ab9e-a83a25b2373b"), FixtureName = "ClayPaky Sharpy [12ch]" },
-                new() { Guid = Guid.Parse("f82e4a5e-5fc5-44f0-8145-bec978c6d0cc"), FixtureName = "ClayPaky Mythos [12ch]" }
+                new()
+                {
+                    Guid = Guid.Parse("f581d163-dfe8-4c09-ab78-22f92d38e15c"),
+                    Manufacturer = "GLP",
+                    FixtureName = "Impression X4 [14ch]"
+                },
+                new()
+                {
+                    Guid = Guid.Parse("5e9f5d57-befb-401c-9daf-289ecb5d62fe"),
+                    Manufacturer = "GLP",
+                    FixtureName = "GLP Impression X5 [14ch]"
+                },
+                new()
+                {
+                    Guid = Guid.Parse("473ebaa1-d0be-4014-ab9e-a83a25b2373b"),
+                    Manufacturer = "Clay Paky",
+                    FixtureName = "Sharpy [12ch]"
+                },
+                new()
+                {
+                    Guid = Guid.Parse("f82e4a5e-5fc5-44f0-8145-bec978c6d0cc"),
+                    Manufacturer = "Clay Paky",
+                    FixtureName = " Mythos [12ch]"
+                }
             };
 
         public static IEnumerable<FixturePlacementEntity> FixturePlacementMockData =>

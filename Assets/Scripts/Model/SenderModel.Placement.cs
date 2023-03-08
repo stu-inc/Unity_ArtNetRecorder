@@ -123,7 +123,7 @@ namespace com.kodai100.ArtNetApp.Models
             var data = new FixturePlacementEntity()
             {
                 Guid = Guid.NewGuid(),
-                OrderIndex = _fixturePresetList.Value.Count,
+                OrderIndex = _fixturePlacementList.Value.Max(x => x.OrderIndex) + 1,    // 最大値を求める
                 Name = preset.FixtureName,
                 Universe = _universe.Value,
                 PresetReferenceGuid = presetGuid

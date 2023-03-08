@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -15,12 +14,14 @@ namespace com.kodai100.ArtNetApp.Models
         public ReactiveProperty<IPAddress> ArtNetSendIp = new(IPAddress.Parse("127.0.0.1"));
         public ReactiveProperty<int> ArtNetSendPort = new(6454);
     
+        public ReactiveProperty<List<FixtureManufacturerEntity>> FixtureManufacturerList = new();
         public ReactiveProperty<List<FixturePresetEntity>> FixturePresetList = new();
         public ReactiveProperty<List<FixturePlacementEntity>> FixturePlacementList = new();
         public ReactiveProperty<List<DmxChannelEntity>> DmxChannelList = new();
 
         public void MockupProjectData()
         {
+            FixtureManufacturerList.Value = MockupData.FixtureManufacturerMockData.ToList();
             FixturePresetList.Value = MockupData.FixturePresetMockData.ToList();
             FixturePlacementList.Value = MockupData.FixturePlacementMockData.ToList();
             DmxChannelList.Value = MockupData.DmxChannelMockData.ToList();

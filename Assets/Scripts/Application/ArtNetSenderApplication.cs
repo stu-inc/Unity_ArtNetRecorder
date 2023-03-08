@@ -32,6 +32,11 @@ namespace com.kodai100.ArtNetApp.Application
 
             private void SetupFixturePresetPresenter(SenderModel model)
             {
+
+                _presenterInstance.OnFixtureManufacturerSelected.Subscribe(guid =>
+                {
+                    model.UpdateManufacturerSelection(guid);
+                }).AddTo(_disposables);
                 
                 _presenterInstance.OnFixturePresetSelected.Subscribe(guid =>
                 {
