@@ -47,6 +47,11 @@ namespace com.kodai100.ArtNetApp.View
                 }
             }).AddTo(this);
 
+            _slider.OnValueChangedAsObservable().Subscribe(value =>
+            {
+                _onChannelValueChanged.OnNext((_data.Guid, (int) value));
+            }).AddTo(this);
+
             _channelValueInputField.onEndEdit.AsObservable().Subscribe(text =>
             {
                 if (int.TryParse(text, out var result))
