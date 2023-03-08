@@ -47,7 +47,7 @@ namespace com.kodai100.ArtNetApp.Models
             _dmxChannelList.SetValueAndForceNotify(_dmxChannelList.Value.OrderBy(x => x.OrderIndex).ToList());  // TODO: 全データでソートされてしまうので選択中のFixtureのチャンネルのみ抽出する
         }
 
-        public void AddDmxChannelData()
+        public void AddDmxChannelData(string channelName)
         {
             var guid = Guid.NewGuid();
         
@@ -55,12 +55,12 @@ namespace com.kodai100.ArtNetApp.Models
             {
                 Guid = guid,
                 OrderIndex = _dmxChannelList.Value.Count,
-                ChannelName = guid.ToString(),
-                // TODO: ChannelIndex = 
-                // TODO: InstancedFixtureReferenceGuid = 
+                ChannelName = channelName,
+                ChannelIndex = _dmxChannelList.Value.Max(x => x.OrderIndex) + 1,
+                InstancedFixtureReferenceGuid = _selectedFixturePlacementEntity.Value.Guid
             };
         
-            _dmxChannelList.Value.Add(data);
+            _dmxChannelList.Value.Add(data);    // TODO: placementを切り替えると消えてしまうので注意
             _dmxChannelList.SetValueAndForceNotify(_dmxChannelList.Value);
         }
 

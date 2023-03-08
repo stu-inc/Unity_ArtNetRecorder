@@ -100,8 +100,11 @@ namespace com.kodai100.ArtNetApp.Presenter
     {
         
         [SerializeField] private DmxChannelListUI _dmxChannelListUI;
+        [SerializeField] private AddChannelUI _addChannelUI;
         public IObservable<Guid> OnDmxChannelSelected => _dmxChannelListUI.OnComponentSelected;
         public IObservable<IEnumerable<ReorderableEntity>> OnDmxChannelOrderChanged => _dmxChannelListUI.OnListOrderChanged;
+
+        public IObservable<string> OnAddChannelButtonClicked => _addChannelUI.OnAddChannelButtonClicked;
         
         private IEnumerable<IDisposable> BindDmxChannelList(SenderModel model)
         {
@@ -114,7 +117,7 @@ namespace com.kodai100.ArtNetApp.Presenter
             {
                 _dmxChannelListUI.MarkAsSelected(selectedData?.Guid);
             });
-            
+
         }
     }
 
