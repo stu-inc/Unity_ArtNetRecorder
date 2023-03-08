@@ -104,6 +104,8 @@ namespace com.kodai100.ArtNetApp.Presenter
         public IObservable<Guid> OnDmxChannelSelected => _dmxChannelListUI.OnComponentSelected;
         public IObservable<IEnumerable<ReorderableEntity>> OnDmxChannelOrderChanged => _dmxChannelListUI.OnListOrderChanged;
 
+        public IObservable<(Guid, int)> OnChannelIndexChanged => _dmxChannelListUI.OnChannelIndexChanged;
+        public IObservable<(Guid, int)> OnChannelValueChanged => _dmxChannelListUI.OnChannelValueChanged;
         public IObservable<Guid> OnDmxChannelDeleted => _dmxChannelListUI.OnComponentDeleted;
 
         public IObservable<string> OnAddChannelButtonClicked => _addChannelUI.OnAddChannelButtonClicked;
@@ -118,6 +120,18 @@ namespace com.kodai100.ArtNetApp.Presenter
             yield return model.SelectedDmxChannelEntity.Subscribe(selectedData =>
             {
                 _dmxChannelListUI.MarkAsSelected(selectedData?.Guid);
+            });
+
+            yield return model.SelectedDmxChannelEntity.Subscribe(selectedData =>
+            {
+                if (selectedData == null) return;
+                _dmxChannelListUI.SetChannelValue(selectedData.Guid, selectedData.ChannelValue);
+            });
+            
+            yield return model.SelectedDmxChannelEntity.Subscribe(selectedData =>
+            {
+                if (selectedData == null) return;
+                _dmxChannelListUI.SetChannelIndex(selectedData.Guid, selectedData.ChannelIndex);
             });
 
         }

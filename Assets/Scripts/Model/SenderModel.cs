@@ -50,7 +50,11 @@ namespace com.kodai100.ArtNetApp.Models
                     return;
                 }
 
-                var filtered = projectDataManager.DmxChannelList.Value.Where(x => x.InstancedFixtureReferenceGuid.Equals(s.Guid)).ToList();
+                var filtered = projectDataManager.DmxChannelList.Value
+                    .Where(x => x.InstancedFixtureReferenceGuid.Equals(s.Guid))
+                    .OrderBy(x => x.OrderIndex)
+                    .ToList();
+                
                 _dmxChannelList.SetValueAndForceNotify(filtered);
             }).AddTo(_disposables);
 

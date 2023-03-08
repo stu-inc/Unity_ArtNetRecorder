@@ -8,7 +8,7 @@ namespace com.kodai100.ArtNetApp.Entities
     {
         public string ChannelName;
         public int ChannelIndex;
-        public float ChannelValue;
+        public int ChannelValue;
 
         [SerializeField]
         private string _instancedFixtureReferenceGuid;

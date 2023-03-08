@@ -54,13 +54,21 @@ namespace com.kodai100.ArtNetApp.View
         {
             
         }
+
+        private Guid? _prevSelected;
         
         public virtual void MarkAsSelected(Guid? guid)
         {
+            if (_prevSelected == guid) return;
+            
             _listComponents.ForEach(c => c.UnSelect());
             
             var target = _listComponents.FirstOrDefault(c => c.Data.Guid == guid);
-            target?.Select();
+            if (target != null)
+            {
+                target.Select();
+                _prevSelected = guid;
+            }
         }
 
         protected virtual void ClearAll()

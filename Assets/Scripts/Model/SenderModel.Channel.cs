@@ -27,11 +27,12 @@ namespace com.kodai100.ArtNetApp.Models
             _selectedDmxChannelEntity.SetValueAndForceNotify(selectedTarget);
         }
 
-        public void UpdateSelectedDmxChannelData(string name)
+        public void UpdateSelectedDmxChannelData(int channelIndex, int channelValue)
         {
             if (_selectedDmxChannelEntity.Value == null) return;
 
-            _selectedDmxChannelEntity.Value.ChannelName = name;
+            _selectedDmxChannelEntity.Value.ChannelIndex = channelIndex;
+            _selectedDmxChannelEntity.Value.ChannelValue = channelValue;
             _selectedDmxChannelEntity.SetValueAndForceNotify(_selectedDmxChannelEntity.Value);
         }
 
@@ -88,6 +89,44 @@ namespace com.kodai100.ArtNetApp.Models
             _dmxChannelList.SetValueAndForceNotify(_dmxChannelList.Value);
 
             _dmxChannelList.Value = null;
+        }
+
+        public void UpdateDmxChannelValue(Guid guid, int value)
+        {
+            if (_selectedDmxChannelEntity.Value != null)
+            {
+                if (_selectedDmxChannelEntity.Value.Guid == guid)
+                {
+                    UpdateSelectedDmxChannelData(_selectedDmxChannelEntity.Value.ChannelIndex, value);
+                    return;
+                }
+            }
+            
+            var selectedTarget = _dmxChannelList.Value.FirstOrDefault(x => x.Guid == guid);
+            if (selectedTarget != null)
+            {
+                _selectedDmxChannelEntity.Value = selectedTarget;
+                UpdateSelectedDmxChannelData(selectedTarget.ChannelIndex, value);
+            }
+        }
+
+        public void UpdateDmxChannelIndex(Guid guid, int value)
+        {
+            if (_selectedDmxChannelEntity.Value != null)
+            {
+                if (_selectedDmxChannelEntity.Value.Guid == guid)
+                {
+                    UpdateSelectedDmxChannelData(value, _selectedDmxChannelEntity.Value.ChannelValue);
+                    return;
+                }
+            }
+
+            var selectedTarget = _dmxChannelList.Value.FirstOrDefault(x => x.Guid == guid);
+            if (selectedTarget != null)
+            {
+                _selectedDmxChannelEntity.Value = selectedTarget;
+                UpdateSelectedDmxChannelData(value, selectedTarget.ChannelValue);
+            }
         }
     }
 }
