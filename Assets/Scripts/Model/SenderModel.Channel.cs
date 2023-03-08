@@ -64,13 +64,19 @@ namespace com.kodai100.ArtNetApp.Models
             _dmxChannelList.SetValueAndForceNotify(_dmxChannelList.Value);
         }
 
-        public void RemoveDmxChannelData()
+        public void RemoveDmxChannelData(Guid guid)
         {
-            if(_selectedDmxChannelEntity.Value == null) return;
-
-            var target = _selectedDmxChannelEntity.Value;
-
-            _dmxChannelList.Value.Remove(target);
+            if (_selectedDmxChannelEntity.Value != null)
+            {
+                if (_selectedDmxChannelEntity.Value.Guid == guid)
+                {
+                    _selectedDmxChannelEntity.Value = null;
+                }
+            }
+            
+            var selectedTarget = _dmxChannelList.Value.FirstOrDefault(x => x.Guid == guid);
+            
+            _dmxChannelList.Value.Remove(selectedTarget);
             _dmxChannelList.SetValueAndForceNotify(_dmxChannelList.Value);
 
             _selectedDmxChannelEntity.Value = null;

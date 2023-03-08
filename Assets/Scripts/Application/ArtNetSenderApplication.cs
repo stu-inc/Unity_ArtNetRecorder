@@ -86,6 +86,11 @@ namespace com.kodai100.ArtNetApp.Application
                 {
                     model.UpdateDmxChannelSelection(guid);
                 }).AddTo(_disposables);
+
+                _presenterInstance.OnDmxChannelDeleted.Subscribe(guid =>
+                {
+                    model.RemoveDmxChannelData(guid);
+                }).AddTo(_disposables);
                 
                 _presenterInstance.OnDmxChannelOrderChanged.Subscribe(list =>
                 {

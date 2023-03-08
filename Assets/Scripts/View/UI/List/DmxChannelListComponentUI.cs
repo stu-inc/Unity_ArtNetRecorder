@@ -1,5 +1,7 @@
-﻿using com.kodai100.ArtNetApp.Entities;
+﻿using System;
+using com.kodai100.ArtNetApp.Entities;
 using TMPro;
+using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,6 +16,8 @@ namespace com.kodai100.ArtNetApp.View
         [SerializeField] private Slider _slider;
         [SerializeField] private UnityEngine.UI.Button _deleteButton;
         
+        public IObservable<Guid> OnDeleteButtonClicked => _deleteButton.OnClickAsObservable().Select(_ => _data.Guid);
+
         public override void Initialize(DmxChannelEntity data)
         {
             base.Initialize(data);

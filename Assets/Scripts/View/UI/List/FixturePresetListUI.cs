@@ -16,21 +16,20 @@ namespace com.kodai100.ArtNetApp.View
 
         private Subject<Guid> _onComponentEditButtonClicked = new();
         public IObservable<Guid> OnComponentEditButtonClicked => _onComponentEditButtonClicked;
-        
-        public override void Initialize(IEnumerable<FixturePresetEntity> dataList)
+
+        protected override void RegisterComponentEvent(ListComponentView<FixturePresetEntity> component,
+            List<IDisposable> disposables)
         {
-            base.Initialize(dataList);
             
-            _listComponents
-                .Select(x => x as FixturePresetListComponentUI)
-                .ToList()
-                .ForEach(c =>
+            base.RegisterComponentEvent(component, disposables);
+            
+            var converted = component as FixturePresetListComponentUI;
+            if (converted != null)
             {
-                c.OnEditButtonClicked.Subscribe(guid =>
-                {
-                    _onComponentEditButtonClicked.OnNext(guid);
-                }).AddTo(_disposables);
-            });
+                converted.OnEditButtonClicked.Subscribe(guid => { _onComponentEditButtonClicked.OnNext(guid); })
+                    .AddTo(disposables);
+            }
+            
         }
     }
 

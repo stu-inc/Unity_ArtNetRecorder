@@ -104,6 +104,8 @@ namespace com.kodai100.ArtNetApp.Presenter
         public IObservable<Guid> OnDmxChannelSelected => _dmxChannelListUI.OnComponentSelected;
         public IObservable<IEnumerable<ReorderableEntity>> OnDmxChannelOrderChanged => _dmxChannelListUI.OnListOrderChanged;
 
+        public IObservable<Guid> OnDmxChannelDeleted => _dmxChannelListUI.OnComponentDeleted;
+
         public IObservable<string> OnAddChannelButtonClicked => _addChannelUI.OnAddChannelButtonClicked;
         
         private IEnumerable<IDisposable> BindDmxChannelList(SenderModel model)

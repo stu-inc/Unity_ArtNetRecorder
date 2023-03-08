@@ -19,9 +19,8 @@ namespace com.kodai100.ArtNetApp.View
         
         protected List<ListComponentView<T>> _listComponents = new();
         
-        protected List<IDisposable> _disposables = new();
-        
-        
+        private List<IDisposable> _disposables = new();
+
         protected virtual void Awake()
         {
             foreach (Transform t in _scrollRect.content)
@@ -45,8 +44,15 @@ namespace com.kodai100.ArtNetApp.View
                     _onComponentSelected.OnNext(guid);
                 }).AddTo(_disposables);
                 
+                RegisterComponentEvent(component, _disposables);
+                
                 _listComponents.Add(component);
             }
+        }
+
+        protected virtual void RegisterComponentEvent(ListComponentView<T> component, List<IDisposable> disposables)
+        {
+            
         }
         
         public virtual void MarkAsSelected(Guid? guid)
