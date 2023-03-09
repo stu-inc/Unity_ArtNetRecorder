@@ -16,6 +16,8 @@ namespace com.kodai100.ArtNetApp.Models
         private readonly ReactiveProperty<DmxChannelEntity> _selectedDmxChannelEntity = new(null);
         public IReadOnlyReactiveProperty<DmxChannelEntity> SelectedDmxChannelEntity => _selectedDmxChannelEntity;
 
+        public IReadOnlyReactiveProperty<List<DmxChannelEntity>> AllDmxChannels => _projectDataManager.DmxChannelList;
+
         private void InitializeDmxChannelModel(ProjectDataManager projectDataManager)
         {
         }
@@ -49,18 +51,23 @@ namespace com.kodai100.ArtNetApp.Models
 
         public void AddDmxChannelData(string channelName)
         {
+            if(_selectedFixturePlacementEntity.Value == null) return;
+            
             var guid = Guid.NewGuid();
         
             var data = new DmxChannelEntity()
             {
                 Guid = guid,
                 OrderIndex = _dmxChannelList.Value.Count,
+                Universe = _selectedFixturePlacementEntity.Value.Universe,
+                ChannelOffset = _selectedFixturePlacementEntity.Value.ChannelOffset,
                 ChannelName = channelName,
-                ChannelIndex = _dmxChannelList.Value.Max(x => x.OrderIndex) + 1,
+                ChannelIndex = _dmxChannelList.Value.Count == 0 ? 0 : _dmxChannelList.Value.Max(x => x.OrderIndex) + 1,
                 InstancedFixtureReferenceGuid = _selectedFixturePlacementEntity.Value.Guid
             };
         
             _projectDataManager.DmxChannelList.Value.Add(data);
+
             // 現在選択しているPlacementを選択し直す
             _selectedFixturePlacementEntity.SetValueAndForceNotify(_selectedFixturePlacementEntity.Value);
         }
@@ -75,10 +82,13 @@ namespace com.kodai100.ArtNetApp.Models
                 }
             }
             
-            var selectedTarget = _dmxChannelList.Value.FirstOrDefault(x => x.Guid == guid);
+            var selectedTarget = _projectDataManager.DmxChannelList.Value.FirstOrDefault(x => x.Guid == guid);
+            _projectDataManager.DmxChannelList.Value.Remove(selectedTarget);
             
-            _dmxChannelList.Value.Remove(selectedTarget);
-            _dmxChannelList.SetValueAndForceNotify(_dmxChannelList.Value);
+            // filter from project data manager
+            var target = _projectDataManager.DmxChannelList.Value.Where(x => x.InstancedFixtureReferenceGuid == _selectedFixturePlacementEntity.Value.Guid).ToList();
+            
+            _dmxChannelList.SetValueAndForceNotify(target);
 
             _selectedDmxChannelEntity.Value = null;
         }

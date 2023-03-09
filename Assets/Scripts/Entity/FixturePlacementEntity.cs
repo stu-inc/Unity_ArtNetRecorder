@@ -9,6 +9,7 @@ namespace com.kodai100.ArtNetApp.Entities
         public string Name;
         public int Universe;
         public int ChannelOffset;
+        public int ChannelNum;
 
         // どのプリセットを使っているのかのリファレンス
         // TODO: プリセットが消されたときはNullで残すか、プリセットが消されたらPlacementも消すか → 消さないのが妥当

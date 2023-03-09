@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using UniRx;
 using com.kodai100.ArtNetApp.Entities;
 
@@ -30,12 +29,29 @@ namespace com.kodai100.ArtNetApp.Models
             _selectedFixturePlacementEntity.Value = selectedTarget;
         }
 
+        // 使わないと思う
         public void UpdateSelectedFixturePlacementData(string name)
         {
             if (_selectedFixturePlacementEntity.Value == null) return;
 
             _selectedFixturePlacementEntity.Value.Name = name;
             _selectedFixturePlacementEntity.SetValueAndForceNotify(_selectedFixturePlacementEntity.Value);
+        }
+
+        public void UpdateChannelOffset(Guid guid, int offset)
+        {
+            var selectedTarget = _fixturePlacementList.Value.FirstOrDefault(x => x.Guid == guid);
+            if (selectedTarget != null)
+            {
+                selectedTarget.ChannelOffset = offset;
+                _selectedFixturePlacementEntity.Value = selectedTarget; // TODO: 要精査
+                
+                // 値が変更されたので、Placementに所属するChannelのChannelOffsetを更新する
+                _projectDataManager.DmxChannelList.Value.Where(x => x.InstancedFixtureReferenceGuid == selectedTarget.Guid).ToList().ForEach(x =>
+                {
+                    x.ChannelOffset = offset;
+                });
+            }
         }
 
         public void UpdateFixturePlacementOrder(IEnumerable<ReorderableEntity> list)
@@ -121,16 +137,25 @@ namespace com.kodai100.ArtNetApp.Models
             var preset = _projectDataManager.FixturePresetList.Value.FirstOrDefault(x => x.Guid == presetGuid);
             
             if(preset == null) return;
-        
+            
+            // チャンネルオフセット用
+            var channelCount = 0;
+            _fixturePlacementList.Value.ForEach(x =>
+            {
+                channelCount += _projectDataManager.DmxChannelList.Value.Count(a => a.InstancedFixtureReferenceGuid == x.Guid);
+            });
+            
             var data = new FixturePlacementEntity()
             {
                 Guid = Guid.NewGuid(),
-                OrderIndex = _fixturePlacementList.Value.Max(x => x.OrderIndex) + 1,    // 最大値を求める
-                Name = preset.FixtureName,
+                OrderIndex = _fixturePlacementList.Value.Count == 0 ? 0 : _fixturePlacementList.Value.Max(x => x.OrderIndex) + 1,    // 最大値を求める
+                Name = $"{preset.FixtureName} [{preset.Channels.Length}ch]",
                 Universe = _universe.Value,
+                ChannelOffset = channelCount,
+                ChannelNum = preset.Channels.Length,
                 PresetReferenceGuid = presetGuid
             };
-            
+
             preset.Channels.ToList().ForEach(c =>
             {
                 _projectDataManager.DmxChannelList.Value.Add(new DmxChannelEntity
@@ -138,6 +163,8 @@ namespace com.kodai100.ArtNetApp.Models
                     Guid = Guid.NewGuid(),
                     OrderIndex = c.ChannelIndex,
                     InstancedFixtureReferenceGuid = data.Guid,
+                    Universe = data.Universe,
+                    ChannelOffset = channelCount,
                     ChannelName = c.ChannelName,
                     ChannelIndex = c.ChannelIndex,
                     ChannelValue = 0

@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Timers;
+using Assets.Scripts.View;
 using com.kodai100.ArtNetApp.Entities;
 using com.kodai100.ArtNetApp.Models;
 using com.kodai100.ArtNetApp.View;
 using UnityEngine;
 using UniRx;
-using Button = UnityEngine.UI.Button;
 
 namespace com.kodai100.ArtNetApp.Presenter
 {
@@ -19,10 +22,49 @@ namespace com.kodai100.ArtNetApp.Presenter
             list.AddRange(BindFixturePresetList(model));
             list.AddRange(BindFixturePlacementList(model));
             list.AddRange(BindDmxChannelList(model));
+            list.AddRange(InitializeDmxSender(model));
             return list;
         }
     }
 
+    // DMX Sender
+    public partial class SenderPresenter
+    {
+
+        private ArtNetSender _sender;
+
+        private Timer _timer;
+        
+        private IEnumerable<IDisposable> InitializeDmxSender(SenderModel model)
+        {
+            yield return _sender = new ArtNetSender();
+
+            // TODO: 軽量バッファ作成？
+            yield return Observable.Timer(TimeSpan.Zero, TimeSpan.FromMilliseconds(1000f/30f))
+                .Subscribe(x =>
+                    {
+                        if(model.AllDmxChannels.Value.Count == 0) return;
+                        
+                        // universe最大値を取得
+                        var group = model.AllDmxChannels.Value.GroupBy(x => x.Universe).ToDictionary(g => g.Key, g => g.ToList());;
+                        foreach (var (universe, channels) in group)
+                        {
+                            var buffer = new byte[512];
+                            foreach (var c in channels)
+                            {
+                                buffer[c.ChannelIndex + c.ChannelOffset] = (byte) c.ChannelValue;
+                            }
+                            _sender.SendUniverse(IPAddress.Loopback, 6454, (ushort)universe, buffer);
+                        }
+                    }
+                ).AddTo(this);
+
+            yield return _timer;
+        }
+
+    }
+
+    // Fixture Preset
     public partial class SenderPresenter
     {
 
@@ -59,6 +101,7 @@ namespace com.kodai100.ArtNetApp.Presenter
         }
     }
 
+    // Placement
     public partial class SenderPresenter
     {
         
@@ -71,7 +114,8 @@ namespace com.kodai100.ArtNetApp.Presenter
         public IObservable<int> OnUniverseInputChanged => _universeSelectionUI.OnUniverseInputFieldValueChanged;
         public IObservable<Unit> OnIncrementUniverseButtonClicked => _universeSelectionUI.OnIncrementButtonClicked;
         public IObservable<Unit> OnDecrementUniverseButtonClicked => _universeSelectionUI.OnDecrementButtonClicked;
-
+        
+        public IObservable<(Guid, int)> OnChannelOffsetChanged => _fixturePlacementListUI.OnChannelOffsetChanged;
 
         private IEnumerable<IDisposable> BindFixturePlacementList(SenderModel model)
         {
@@ -85,6 +129,11 @@ namespace com.kodai100.ArtNetApp.Presenter
                 _fixturePlacementListUI.MarkAsSelected(selectedData?.Guid);
             });
             
+            yield return model.SelectedFixturePlacementEntity.Subscribe(selectedData =>
+            {
+                if (selectedData == null) return;
+                _fixturePlacementListUI.SetChannelOffset(selectedData.Guid, selectedData.ChannelOffset);
+            });
             
             
             // Universe selection

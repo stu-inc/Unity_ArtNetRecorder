@@ -43,7 +43,7 @@ namespace com.kodai100.ArtNetApp.View
                 converted.OnChannelValueChanged.Subscribe(v =>
                 {
                     _onChannelValueChanged.OnNext(v);
-                }).AddTo(this);
+                }).AddTo(disposables);
             }
         }
 

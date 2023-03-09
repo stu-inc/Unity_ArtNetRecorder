@@ -78,6 +78,12 @@ namespace com.kodai100.ArtNetApp.Application
                 {
                     model.DecrementUniverse();
                 }).AddTo(_disposables);
+                
+                // parameter change
+                _presenterInstance.OnChannelOffsetChanged.Subscribe(data =>
+                {
+                    model.UpdateChannelOffset(data.Item1, data.Item2);
+                }).AddTo(_disposables);
             }
             
             private void SetupDmxChannelPresenter(SenderModel model)

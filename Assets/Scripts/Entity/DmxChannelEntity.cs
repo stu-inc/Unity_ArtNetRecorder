@@ -7,6 +7,8 @@ namespace com.kodai100.ArtNetApp.Entities
     public class DmxChannelEntity : ReorderableEntity
     {
         public string ChannelName;
+        public int Universe;
+        public int ChannelOffset;
         public int ChannelIndex;
         public int ChannelValue;
 
