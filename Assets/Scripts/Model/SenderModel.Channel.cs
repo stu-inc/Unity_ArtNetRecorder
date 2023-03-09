@@ -23,7 +23,6 @@ namespace com.kodai100.ArtNetApp.Models
         public void UpdateDmxChannelSelection(Guid? id)
         {
             var selectedTarget = _dmxChannelList.Value.FirstOrDefault(x => x.Guid == id);
-            Debug.Log($"Update Selection : {id}");
             _selectedDmxChannelEntity.SetValueAndForceNotify(selectedTarget);
         }
 
@@ -61,8 +60,9 @@ namespace com.kodai100.ArtNetApp.Models
                 InstancedFixtureReferenceGuid = _selectedFixturePlacementEntity.Value.Guid
             };
         
-            _dmxChannelList.Value.Add(data);    // TODO: placementを切り替えると消えてしまうので注意
-            _dmxChannelList.SetValueAndForceNotify(_dmxChannelList.Value);
+            _projectDataManager.DmxChannelList.Value.Add(data);
+            // 現在選択しているPlacementを選択し直す
+            _selectedFixturePlacementEntity.SetValueAndForceNotify(_selectedFixturePlacementEntity.Value);
         }
 
         public void RemoveDmxChannelData(Guid guid)

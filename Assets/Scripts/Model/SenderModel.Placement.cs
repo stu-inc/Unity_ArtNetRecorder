@@ -27,7 +27,6 @@ namespace com.kodai100.ArtNetApp.Models
         public void UpdateFixturePlacementSelection(Guid? id)
         {
             var selectedTarget = _fixturePlacementList.Value.FirstOrDefault(x => x.Guid == id);
-            Debug.Log($"Update Selection : {id}");
             _selectedFixturePlacementEntity.Value = selectedTarget;
         }
 
@@ -56,7 +55,7 @@ namespace com.kodai100.ArtNetApp.Models
             _selectedFixturePlacementEntity.Value = null;
         }
 
-        public void AddFixturePlacementData()
+        public void AddFixturePlacementData(string fixtureName)
         {
             var guid = Guid.NewGuid();
         
@@ -64,11 +63,12 @@ namespace com.kodai100.ArtNetApp.Models
             {
                 Guid = guid,
                 OrderIndex = _fixturePresetList.Value.Count,
-                Name = guid.ToString()
+                Name = fixtureName
             };
         
-            _fixturePlacementList.Value.Add(data);
-            _fixturePlacementList.SetValueAndForceNotify(_fixturePlacementList.Value);
+            _projectDataManager.FixturePlacementList.Value.Add(data);
+            // 現在選択しているuniverseを選択し直す
+            _universe.SetValueAndForceNotify(_universe.Value);
         }
 
         public void RemoveFixturePlacementData()
